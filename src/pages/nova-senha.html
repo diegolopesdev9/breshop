@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Nova Senha | A GARIMPEIRAbr</title>
+    <!-- Essencial: Dita para o Google que ele não deve exibir essa tela na busca -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/css/main.css" />
+    <link rel="icon" type="image/png" href="/favicon.webp" />
+</head>
+<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background">
+
+    <main class="pt-[140px] pb-24 max-w-lg mx-auto px-6 md:px-8 min-h-[70vh]">
+        <div class="mb-8 border-b border-outline/10 pb-6 text-center">
+            <h1 class="font-serif text-4xl md:text-5xl text-on-background italic mb-4">Nova Senha.</h1>
+            <p class="text-sm text-on-surface-variant uppercase tracking-widest">Crie uma nova senha de acesso.</p>
+        </div>
+
+        <form id="form-nova-senha" class="flex flex-col gap-6 bg-surface-container p-8 hairline-border shadow-lg">
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-bold uppercase tracking-widest text-on-background">Sua Nova Senha</label>
+                <input id="input-nova-senha" type="password" required minlength="6" placeholder="Mínimo 6 caracteres" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-on-background transition-colors">
+            </div>
+            <button type="submit" class="mt-4 w-full bg-on-background text-on-primary text-sm uppercase tracking-[0.2em] py-4 hover:bg-primary-container transition-all duration-300 font-bold">
+                Salvar e Entrar
+            </button>
+        </form>
+    </main>
+
+    <script type="module" src="/src/js/nova-senha.js"></script>
+</body>
+</html>

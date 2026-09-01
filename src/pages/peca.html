@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    
+    <!-- Google tag (gtag.js) - Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B1YYB2TB3V"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-B1YYB2TB3V');
+    </script>
+
+    <!-- SEO Dinâmico (Preenchido via JS) -->
+    <title id="seo-title">Carregando Peça... | A GARIMPEIRAbr</title>
+    <meta id="seo-desc" name="description" content="Peça exclusiva do acervo A GARIMPEIRAbr." />
+    <link id="seo-canonical" rel="canonical" href="https://www.agarimpeirabr.com.br/" />
+
+    <!-- Open Graph Dinâmico -->
+    <meta id="og-title" property="og:title" content="A Garimpeirabr | Acervo" />
+    <meta id="og-desc" property="og:description" content="Peça second-hand exclusiva." />
+    <meta id="og-image" property="og:image" content="https://www.agarimpeirabr.com.br/banner-social.webp" />
+    <meta id="og-url" property="og:url" content="https://www.agarimpeirabr.com.br/" />
+    <meta property="og:type" content="product" />
+
+    <link rel="icon" type="image/png" href="/favicon.webp" />
+    <link rel="preconnect" href="https://hqssqzmgumckbcxcqqmu.supabase.co" crossorigin>
+    
+    <link rel="stylesheet" href="/src/css/main.css" />
+</head>
+<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background flex flex-col min-h-screen">
+
+    <!-- O Header será injetado pelo layout.js -->
+
+    <main class="pt-[100px] pb-16 max-w-7xl mx-auto w-full flex-1 px-4 md:px-8 flex flex-col">
+        
+        <!-- Breadcrumb para SEO e navegação -->
+        <nav class="flex text-[10px] uppercase tracking-widest text-on-surface-variant mb-6 font-bold">
+            <a href="/" class="hover:text-primary transition-colors">Home</a>
+            <span class="mx-2">/</span>
+            <a href="/garimpos" class="hover:text-primary transition-colors">Acervo</a>
+            <span class="mx-2">/</span>
+            <span id="breadcrumb-nome" class="text-on-background truncate">Detalhes</span>
+        </nav>
+
+        <div id="peca-loading" class="w-full py-24 flex flex-col items-center justify-center text-on-surface-variant">
+            <p class="text-xs uppercase tracking-widest animate-pulse">Buscando informações da peça...</p>
+        </div>
+
+        <!-- O JS vai injetar o layout da peça aqui dentro -->
+        <div id="peca-container" class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 hidden opacity-0 transition-opacity duration-500"></div>
+
+    </main>
+
+    <!-- O Footer será injetado pelo layout.js -->
+
+    <script type="module" src="/src/js/peca.js"></script>
+</body>
+</html>

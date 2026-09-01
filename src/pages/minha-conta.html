@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    
+    <title>Minha Conta | A GARIMPEIRAbr</title>
+    <meta name="description" content="Gerencie seus pedidos e dados na A Garimpeira." />
+    <meta name="keywords" content="brechó online, curadoria vintage, second hand, roupas vintage, moda sustentável, a garimpeira, brechó itapetininga" />
+    <meta name="author" content="A Garimpeirabr" />
+    <link rel="canonical" href="https://www.agarimpeirabr.com.br/minha-conta" />
+
+    <meta property="og:title" content="Minha Conta | A GARIMPEIRAbr" />
+    <meta property="og:description" content="Gerencie seus pedidos e dados na A Garimpeira." />
+    <meta property="og:image" content="https://www.agarimpeirabr.com.br/logo.webp" />
+    <meta property="og:url" content="https://www.agarimpeirabr.com.br/minha-conta" />
+    <meta property="og:type" content="website" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/src/css/main.css" />
+    <link rel="icon" type="image/webp" href="/favicon.webp" />
+</head>
+<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background">
+
+    <main class="pt-[140px] pb-24 max-w-2xl mx-auto px-6 md:px-8 min-h-[70vh]">
+        <div class="mb-12 border-b border-outline/10 pb-8 flex justify-between items-end">
+            <div>
+                <h1 class="font-serif text-4xl md:text-5xl text-on-background italic mb-4">Minha Conta.</h1>
+                <p class="text-sm text-on-surface-variant uppercase tracking-widest">Gerencie seus dados e pedidos</p>
+            </div>
+            <button id="btn-logout" class="text-xs font-bold uppercase tracking-widest text-error hover:text-error/80 transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                Sair
+            </button>
+        </div>
+
+        <div class="flex gap-6 mb-8 border-b border-outline/20">
+            <button id="tab-dados" class="pb-3 border-b-2 border-on-background font-bold text-xs uppercase tracking-widest text-on-background transition-colors">Meus Dados</button>
+            <button id="tab-pedidos" class="pb-3 border-b-2 border-transparent font-bold text-xs uppercase tracking-widest text-on-surface-variant hover:text-on-background transition-colors">Meus Pedidos</button>
+        </div>
+
+        <div id="content-dados" class="block">
+            <form id="form-minha-conta" class="flex flex-col gap-6 bg-surface-container p-8 hairline-border shadow-lg">
+                <div class="flex flex-col gap-2 mb-2">
+                    <label class="text-xs font-bold uppercase tracking-widest text-on-background">E-mail Logado</label>
+                    <input id="conta-email" type="email" readonly class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-full text-on-surface-variant opacity-70 cursor-not-allowed transition-colors">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold uppercase tracking-widest text-on-background">Nome Completo</label>
+                    <input id="conta-nome" type="text" required class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-on-background transition-colors">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold uppercase tracking-widest text-on-background">CPF</label>
+                    <input id="conta-cpf" type="text" required class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-on-background transition-colors">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold uppercase tracking-widest text-on-background">Telefone / WhatsApp</label>
+                    <input id="conta-telefone" type="text" required class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-on-background transition-colors">
+                </div>
+                <button type="submit" class="mt-4 w-full bg-on-background text-on-primary text-sm uppercase tracking-[0.2em] py-4 hover:bg-primary-container transition-all duration-300 font-bold">
+                    Salvar Alterações
+                </button>
+            </form>
+        </div>
+
+        <div id="content-pedidos" class="hidden flex-col gap-4">
+            <div id="lista-pedidos" class="flex flex-col gap-4">
+                <p class="text-sm text-on-surface-variant py-8 text-center italic">Buscando seus pedidos...</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="../js/minha-conta.js"></script>
+</body>
+</html>

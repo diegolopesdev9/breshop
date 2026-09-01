@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    
+    <!-- Google tag (gtag.js) - Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B1YYB2TB3V"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-B1YYB2TB3V');
+    </script>
+
+    <!-- SEO Primário -->
+    <title>A GARIMPEIRAbr | Packs de Roupas Second-Hand para Brechós</title>
+    <meta name="description" content="Monte seu próprio pack de 5, 10, 20 ou 30 peças second-hand. Curadoria, lavagem e higienização feitas por nós. O valor acompanha a sua escolha. Enviamos pra todo o Brasil." />
+    <meta name="keywords" content="brechó online, curadoria vintage, second hand, roupas vintage, moda sustentável, a garimpeira, brechó itapetininga" />
+    <meta name="author" content="A Garimpeirabr" />
+    <link rel="canonical" href="https://www.agarimpeirabr.com.br/" />
+
+    <!-- Open Graph (WhatsApp, Instagram, Facebook) -->
+    <meta property="og:title" content="A Garimpeirabr | Monte seu Pack de 5 a 30 Peças Second-Hand" />
+    <meta property="og:description" content="Monte seu próprio pack escolhendo 5, 10, 20 ou 30 peças do nosso acervo. Peças lavadas e prontas pra arara. O valor acompanha a sua escolha. Enviamos para todo o Brasil." />
+    <meta property="og:image" content="https://www.agarimpeirabr.com.br/banner-social.webp" />
+    <meta property="og:url" content="https://www.agarimpeirabr.com.br/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Schema.org / LocalBusiness (Otimização GEO para o Google) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "A Garimpeirabr",
+      "image": "https://www.agarimpeirabr.com.br/logo.webp",
+      "@id": "https://www.agarimpeirabr.com.br/",
+      "url": "https://www.agarimpeirabr.com.br/",
+      "telephone": "+5515998332211",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Itapetininga",
+        "addressRegion": "SP",
+        "postalCode": "18200-358",
+        "addressCountry": "BR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -23.5917,
+        "longitude": -48.0531
+      },
+      "priceRange": "$$",
+      "description": "Fornecemos packs personalizados de roupas second-hand, curadas e prontas pra vender, para donas de brechó e novas empreendedoras de moda."
+    }
+    </script>
+
+    <link rel="icon" type="image/png" href="/favicon.webp" />
+    <link rel="preconnect" href="https://hqssqzmgumckbcxcqqmu.supabase.co" crossorigin>
+
+    <!-- HACK: Pré-carregamento e Carregamento Assíncrono do Google Fonts (Somente Textos) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap">
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" media="print" onload="this.media='all'">
+        
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap">
+    </noscript>
+
+    <!-- CSS Base do Projeto -->
+    <link rel="stylesheet" href="/src/css/main.css" />
+
+    <!-- CACHE LCP PRELOAD -->
+    <script>
+        const heroCache = localStorage.getItem('garimpeira_hero_cache');
+        if (heroCache) {
+            const preloadLink = document.createElement('link');
+            preloadLink.rel = 'preload';
+            preloadLink.as = 'image';
+            preloadLink.href = heroCache;
+            preloadLink.fetchPriority = 'high';
+            document.head.appendChild(preloadLink);
+        }
+    </script>
+</head>
+<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background">
+
+    <!-- O Header será injetado dinamicamente aqui via layout.js -->
+
+    <main class="pt-[80px] pb-16 max-w-7xl mx-auto overflow-hidden px-4 md:px-8">
+        
+        <section id="search-results-section" class="hidden mb-20">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="font-serif text-4xl text-on-background italic">Resultados.</h2>
+                    <p class="text-sm text-on-surface-variant mt-2">Encontramos estas peças para sua busca.</p>
+                </div>
+            </div>
+            <div id="search-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <!-- JS vai injetar os resultados aqui -->
+            </div>
+        </section>
+        
+        <section class="relative w-full min-h-[60vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden mb-8 group">
+            <img id="hero-img" fetchpriority="high" src="" alt="Monte seu pack de 5 a 30 peças de roupas second-hand para brechó — A GARIMPEIRAbr" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105" />
+            
+            <script>
+                if (localStorage.getItem('garimpeira_hero_cache')) {
+                    document.getElementById('hero-img').src = localStorage.getItem('garimpeira_hero_cache');
+                }
+            </script>
+            
+            <div class="absolute inset-0 bg-stone-900/60 z-10"></div>
+            
+            <div class="relative z-20 flex flex-col items-center text-center px-4 md:px-6 w-full max-w-full md:max-w-3xl mt-12 md:mt-0 overflow-hidden">
+                <!-- Correção SEO: A badge agora é o H1 e o texto reflete as quantidades corretas caso venha vazio da base -->
+                <h1 id="hero-tag" class="text-[9px] md:text-xs text-white border border-white/30 uppercase tracking-widest bg-black/40 backdrop-blur-sm px-3 md:px-4 py-1.5 mb-4 md:mb-6 mx-auto block w-fit max-w-[90%] break-words shadow-sm text-center"></h1>
+                
+                <p id="hero-title" class="block font-serif italic text-4xl sm:text-5xl md:text-7xl text-white mb-4 md:mb-6 leading-tight drop-shadow-lg break-words w-full px-2"></p>
+                
+                <p id="hero-desc" class="font-normal text-[11px] sm:text-xs md:text-base text-white/90 mb-6 md:mb-8 max-w-lg leading-relaxed drop-shadow-md break-words w-full px-4"></p>
+
+                <a id="hero-cta-button" href="/packs" class="bg-white text-stone-900 text-[10px] md:text-xs font-bold uppercase tracking-widest md:tracking-[0.2em] py-3 md:py-4 px-6 md:px-8 hover:bg-stone-200 transition-colors shadow-2xl w-[90%] sm:w-auto text-center break-words"></a>
+            </div>
+        </section>
+
+        <!-- A partir daqui, as sessões permanecem as mesmas que você tem, adicionei apenas loading="lazy" nas imagens estáticas -->
+        
+        <section class="flex flex-col md:flex-row gap-3 md:gap-6 mb-12 md:mb-16 transition-all duration-300">
+            <div class="flex-1 flex items-center justify-between p-4 md:p-6 bg-surface-container hairline-border hover:border-primary transition-colors">
+                <div>
+                    <!-- Deixou de ser H2 para não conflitar com a hierarquia semântica -->
+                    <span class="block text-base md:text-lg font-bold uppercase tracking-widest text-on-background">Enviamos para todo Brasil</span>
+                    <p class="text-xs md:text-sm text-on-surface-variant mt-1">Frete calculado no checkout</p>
+                </div>
+            </div>
+            <div class="flex-1 flex items-center justify-between p-4 md:p-6 bg-surface-container hairline-border hover:border-primary transition-colors">
+                <div>
+                    <span class="block text-base md:text-lg font-bold lowercase tracking-widest text-on-background">10% off no seu primeiro pack</span>
+                    <p class="text-xs md:text-sm text-on-surface-variant mt-1">cadastre-se e seja avisada assim que um novo lote for lançado</p>
+                </div>
+                <button onclick="document.querySelector('#newsletter-anchor').scrollIntoView({ behavior: 'smooth', block: 'start' });" aria-label="Assinar newsletter" class="bg-on-background text-background px-4 md:px-6 py-2 md:py-3 text-[10px] md:text-xs uppercase tracking-widest hover:bg-primary-container transition-colors">Quero ser avisada</button>
+            </div>
+        </section>
+
+        <section class="mb-20 border-t border-outline/10 pt-12">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="font-serif text-4xl text-on-background italic">Destaques.</h2>
+                    <p class="text-sm text-on-surface-variant mt-2">Peças selecionadas do nosso arquivo.</p>
+                </div>
+            </div>
+            
+            <div id="highlights-carousel" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 scrollbar-hide">
+            </div>
+        </section>
+
+        <section class="mb-20">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <a href="/garimpos" aria-label="Acessar Acervo" class="relative aspect-[4/3] md:aspect-square overflow-hidden group hairline-border block">
+                    <div class="absolute inset-0 bg-on-background/70 group-hover:bg-on-background/50 transition-colors z-10"></div>
+                    <!-- Adicionado loading lazy -->
+                    <img id="img-garimpo" loading="lazy" alt="Categoria Acervo" src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700">
+                    <div class="absolute inset-0 flex items-center justify-center z-20">
+                        <span class="font-serif text-3xl text-background lowercase tracking-widest transition-all">acervo</span>
+                    </div>
+                </a>
+                
+                <a href="/packs" aria-label="Acessar Packs" class="relative aspect-[4/3] md:aspect-square overflow-hidden group hairline-border block">
+                    <div class="absolute inset-0 bg-on-background/70 group-hover:bg-on-background/50 transition-colors z-10"></div>
+                    <!-- Adicionado loading lazy -->
+                    <img id="img-packs" loading="lazy" alt="Categoria Packs" src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700">
+                    <div class="absolute inset-0 flex items-center justify-center z-20">
+                        <span class="font-serif text-3xl text-background lowercase tracking-widest transition-all">packs</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section id="info-section" class="py-16 bg-surface-container-low/50 relative transition-all duration-300">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center px-4 md:px-8">
+                <div class="md:col-span-4 flex flex-col justify-center relative z-10">
+                    <h2 id="edital-title" class="font-serif text-4xl md:text-5xl text-on-background leading-none mb-4"></h2>
+                    <p id="edital-desc" class="text-sm text-on-surface-variant mb-6"></p>
+                </div>
+                <div class="md:col-span-8 relative">
+                    <div class="w-full aspect-video md:aspect-[16/9] overflow-hidden bg-transparent">
+                        <!-- Adicionado loading lazy -->
+                        <img id="edital-img" loading="lazy" class="object-cover w-full h-full" src="" alt="Editorial"/>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>

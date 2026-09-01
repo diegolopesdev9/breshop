@@ -1,0 +1,39 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/packs", "destination": "/src/pages/packs" },
+    { "source": "/garimpos", "destination": "/src/pages/garimpos" },
+    { "source": "/drops", "destination": "/src/pages/drops" },
+    { "source": "/sobre", "destination": "/src/pages/sobre" },
+    { "source": "/contato", "destination": "/src/pages/contato" },
+    { "source": "/faq", "destination": "/src/pages/faq" },
+    { "source": "/trocas", "destination": "/src/pages/trocas" },
+    { "source": "/privacidade", "destination": "/src/pages/privacidade" },
+    { "source": "/termos", "destination": "/src/pages/termos" },
+    { "source": "/minha-conta", "destination": "/src/pages/minha-conta" },
+    { "source": "/nova-senha", "destination": "/src/pages/nova-senha" },
+    { "source": "/admin", "destination": "/admin" },
+    { "source": "/peca", "destination": "/src/pages/peca" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)\\.(js|css|webp|png|jpg|jpeg|svg|avif|woff2?)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ]
+}

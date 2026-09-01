@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    
+    <!-- SEO Primário -->
+    <title>A GARIMPEIRAbr | Packs de Roupas Second-Hand para Brechós</title>
+    <meta name="description" content="Packs de peças second-hand, prontas pra arara. Curadoria, lavagem e higienização feitas por nós, você foca em vender. Enviamos pra todo o Brasil." />
+    <meta name="keywords" content="brechó online, curadoria vintage, second hand, roupas vintage, moda sustentável, a garimpeira, brechó itapetininga" />
+    <meta name="author" content="A Garimpeirabr" />
+    <link rel="canonical" href="https://www.agarimpeirabr.com.br/" />
+
+    <!-- Open Graph (WhatsApp, Instagram, Facebook) -->
+    <meta property="og:title" content="A Garimpeirabr | Packs Prontos pra Arara" />
+    <meta property="og:description" content="Packs de roupas second-hand, prontos pra vender. A gente garimpa, lava e higieniza — você foca no seu brechó. Enviamos para todo o Brasil." />
+    <meta property="og:image" content="https://www.agarimpeirabr.com.br/logo.webp" />
+    <meta property="og:url" content="https://www.agarimpeirabr.com.br/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Schema.org / LocalBusiness (Otimização GEO para o Google) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "A Garimpeirabr",
+      "image": "https://www.agarimpeirabr.com.br/logo.webp",
+      "@id": "https://www.agarimpeirabr.com.br/",
+      "url": "https://www.agarimpeirabr.com.br/",
+      "telephone": "",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "",
+        "addressLocality": "Itapetininga",
+        "addressRegion": "SP",
+        "postalCode": "18200-358",
+        "addressCountry": "BR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -23.5917,
+        "longitude": -48.0531
+      },
+      "priceRange": "$$",
+      "description": "Fornecemos packs de roupas second-hand, curadas e prontas pra vender, para donas de brechó e novas empreendedoras de moda."
+    }
+    </script>
+
+    <!-- Fontes e Estilos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/src/css/main.css" />
+    <link rel="icon" type="image/webp" href="/favicon.webp" />
+    <link rel="preconnect" href="https://hqssqzmgumckbcxcqqmu.supabase.co" crossorigin>
+</head>
+<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background">
+
+    <!-- TopNavBar -->
+    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-8 py-4 bg-surface/80 backdrop-blur-xl border-b border-outline/10 transition-all duration-300">
+        <div class="md:hidden flex items-center">
+            <button class="text-on-background">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+            </button>
+        </div>
+        
+        <a href="/" class="flex-shrink-0 cursor-pointer">
+            <img src="/logo.png" alt="A Garimpeira" class="h-6 md:h-8 object-contain" />
+        </a>
+        
+        <nav id="nav-links" class="hidden md:flex gap-8 items-center">
+            <a href="/src/pages/garimpos.html" class="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant hover:text-primary transition-all duration-300">Garimpos</a>
+            <a href="/src/pages/drops.html" class="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant hover:text-primary transition-all duration-300">Drops</a>
+            <a href="/src/pages/packs.html" class="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant hover:text-primary transition-all duration-300">Packs</a>
+        </nav>
+        
+        <div class="flex items-center gap-4">
+            <div class="relative hidden lg:block mr-2">
+                <input class="bg-transparent border-b hairline-border px-0 py-1 text-xs uppercase tracking-wider focus:ring-0 focus:border-primary transition-all w-40 outline-none" placeholder="Search..." type="text" />
+            </div>
+            <button id="cart-toggle-btn" class="text-on-background hover:text-primary transition-colors relative flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span id="cart-count-badge" class="absolute -top-1 -right-2 bg-on-background text-background text-[10px] rounded-full w-4 h-4 flex items-center justify-center hidden font-bold">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Área de Conteúdo Institucional -->
+    <main class="pt-[140px] pb-24 max-w-4xl mx-auto px-6 md:px-8 min-h-[70vh]">
+        
+        <div class="mb-12 border-b border-outline/10 pb-8">
+            <h1 class="font-serif text-4xl md:text-5xl text-on-background italic mb-4">Título da Página</h1>
+            <p class="text-sm text-on-surface-variant uppercase tracking-widest">Última atualização: 31 de Julho de 2026</p>
+        </div>
+
+        <div class="prose prose-invert max-w-none text-on-background/80 space-y-6">
+            <p>
+                Insira o texto da página institucional aqui. Esta área está otimizada para leitura, com uma largura máxima que evita que as linhas fiquem muito compridas.
+            </p>
+            
+            <h2 class="text-xl font-bold text-on-background mt-8 mb-4">1. Subtítulo de Exemplo</h2>
+            <p>
+                Pode usar tags HTML padrão como parágrafos, listas e cabeçalhos para estruturar documentos longos, como Políticas de Privacidade ou Termos de Uso.
+            </p>
+            
+            <ul class="list-disc pl-6 space-y-2 mt-4">
+                <li>Ponto importante número um.</li>
+                <li>Ponto importante número dois.</li>
+                <li>Ponto importante número três.</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Minimal Checkout Drawer (Mantido para a navbar continuar funcionando) -->
+    <div id="checkout-drawer" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-background border-l hairline-border transform translate-x-full transition-transform duration-300 z-[200] flex flex-col hidden shadow-2xl">
+        <div class="p-6 border-b hairline-border flex justify-between items-center bg-background">
+            <h2 class="font-serif text-2xl font-bold">The Bag.</h2>
+            <button id="close-checkout-drawer" class="text-on-surface-variant hover:text-on-background">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+        
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+
+        <div id="payment-area" class="p-6 border-t hairline-border bg-surface-container-low flex flex-col gap-4">
+            <div class="flex justify-between items-center mb-2 text-xl font-bold">
+                <span>Total</span>
+                <span id="cart-total">R$ 0,00</span>
+            </div>
+            <div class="flex flex-col gap-3 text-xs uppercase tracking-widest text-on-background">
+                <input id="chk-nome" type="text" placeholder="Full Name" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full">
+                <input id="chk-cpf" type="text" placeholder="CPF" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full">
+                <input id="chk-cep" type="text" placeholder="Zip Code" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full">
+            </div>
+            <button id="btn-submit-order" class="w-full mt-4 bg-on-background text-on-primary text-sm uppercase tracking-[0.2em] py-4 hover:bg-primary-container transition-all duration-300 font-bold">
+                Finalize Order
+            </button>
+        </div>
+    </div>
+
+    <footer id="footer" class="w-full py-16 px-4 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 items-start bg-surface-container-lowest border-t border-outline/20">
+        <div class="col-span-1">
+            <img src="/logo.png" alt="A Garimpeira" class="h-10 object-contain mb-4" />
+            <p class="text-sm text-on-surface-variant">© 2026 A GARIMPEIRA.<br>Curadoria.</p>
+        </div>
+        
+        <div class="col-span-1 flex flex-col gap-4">
+            <h4 class="text-xs font-bold uppercase tracking-widest text-on-background">SAC & Legal</h4>
+            <div class="flex flex-col gap-3">
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/trocas.html">Políticas de Troca</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/faq.html">Perguntas Frequentes</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/privacidade.html">Política de Privacidade</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/termos.html">Termos e Condições</a>
+            </div>
+        </div>
+
+        <div class="col-span-1 flex flex-col gap-4">
+            <h4 class="text-xs font-bold uppercase tracking-widest text-on-background">Links Úteis</h4>
+            <div class="flex flex-col gap-3">
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/sobre.html">Quem Somos</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="https://instagram.com/agarimpeira" target="_blank" rel="noopener noreferrer">Nosso Instagram</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/contato.html">Fale Conosco</a>
+            </div>
+        </div>
+
+        <div id="newsletter-anchor" class="col-span-1 flex flex-col gap-4 bg-surface-container p-6 hairline-border">
+            <h4 class="text-xs font-bold uppercase tracking-widest text-on-background">Assine Nossa Lista VIP</h4>
+            <p class="text-xs text-on-surface-variant">Receba 10% OFF na primeira compra e avisos sobre drops.</p>
+            <form class="flex flex-col gap-3 mt-2">
+                <input type="text" placeholder="Seu Nome" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-sm text-on-background">
+                <input type="email" placeholder="Seu E-mail" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-sm text-on-background">
+                <button type="button" class="mt-4 w-full bg-on-background text-background px-4 py-3 text-xs font-bold uppercase tracking-widest hover:bg-primary-container transition-colors">Quero meu desconto</button>
+            </form>
+        </div>
+    </footer>
+
+    <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>
