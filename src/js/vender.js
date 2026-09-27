@@ -1,7 +1,7 @@
 import "../css/main.css";
 import { renderLayout } from "./layout.js";
 import { initAuth } from "./auth.js";
-import { supabase } from "./supabase.js"; // Correção da importação aqui
+import { supabase } from "./supabase.js"; 
 import { initCheckoutListeners } from "./checkout.js";
 
 renderLayout();
@@ -57,6 +57,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!session) {
         window.location.href = "/";
         return;
+    }
+
+    // Busca a taxa dinâmica para atualizar o aviso na UI
+    try {
+        const { data: config } = await supabase.from('site_config').select('marketplace_fee').limit(1).single();
+        if (config && config.marketplace_fee) {
+            document.querySelectorAll('.dynamic-fee-text').forEach(el => {
+                el.textContent = config.marketplace_fee;
+            });
+        }
+    } catch (e) {
+        console.error("Erro ao carregar a taxa da plataforma:", e);
     }
 
     const { data: customer } = await supabase.from('customers').select('cep_origem').eq('id', session.user.id).single();
