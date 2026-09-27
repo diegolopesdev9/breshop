@@ -3,9 +3,16 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Inicializa como Singleton (evita re-instanciação)
+let _supabaseInstance = null;
 
-// 1. Busca os Produtos
+export const supabase = (() => {
+  if (!_supabaseInstance) {
+    _supabaseInstance = createClient(supabaseUrl, supabaseKey);
+  }
+  return _supabaseInstance;
+})();
+
 export async function fetchProducts() {
   const { data, error } = await supabase
     .from('produtos') 
@@ -19,10 +26,8 @@ export async function fetchProducts() {
   }
   
   return data.map(itemDb => {
-    // Blinda a leitura do booleano
     const destaque = itemDb.is_destaque === true || String(itemDb.is_destaque).toLowerCase() === 'true';
     
-    // Tratamento de segurança da marca
     let marcaExibir = '';
     if (itemDb.marca && itemDb.marca.trim() !== '' && itemDb.marca.trim().toLowerCase() !== 'sem marca') {
       marcaExibir = itemDb.marca.trim();
@@ -37,17 +42,18 @@ export async function fetchProducts() {
       images: itemDb.url_foto ? itemDb.url_foto.split(',').map(url => url.trim()) : [], 
       category: itemDb.categoria ? itemDb.categoria.toLowerCase() : 'todos',
       size: itemDb.tamanho || '', 
-      brand: marcaExibir, // A nova propriedade enviada para a UI
+      brand: marcaExibir,
       soldOut: itemDb.status === 'vendido',
       badge: itemDb.status !== 'disponivel' ? itemDb.status.toUpperCase() : '',
       pack: itemDb.pack || '', 
       drop: itemDb.drop || '',
-      isDestaque: destaque 
+      isDestaque: destaque,
+      isVintage: itemDb.is_vintage === true || String(itemDb.is_vintage).toLowerCase() === 'true',
+      hasAvaria: itemDb.has_avaria === true || String(itemDb.has_avaria).toLowerCase() === 'true'
     };
   });
 }
 
-// 2. Busca os Packs consolidados
 export async function fetchPacks() {
   const { data, error } = await supabase
     .from('packs') 
@@ -69,7 +75,7 @@ export async function fetchPacks() {
       image: itemDb.url_foto || '',
       category: 'packs',
       size: '', 
-      brand: '', // Packs nunca terão marca específica
+      brand: '', 
       soldOut: false,
       badge: itemDb.quantidade_pecas ? `${itemDb.quantidade_pecas} PEÇAS` : 'PACK',
       pack: itemDb.nome, 

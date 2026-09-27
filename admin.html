@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel Admin - A Garimpeirabr</title>
-    <link rel="stylesheet" href="/src/css/main.css" />
+    <title>Breshop | Admin Control</title>
     <link rel="icon" type="image/png" href="/favicon.webp" />
-    <!-- Fonte Material Symbols EXCLUSIVA para o funcionamento do painel Admin -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  </head>
-  <body class="bg-zinc-950">
-    <div id="admin-root"></div>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Trazendo a Roboto para o Admin -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
+</head>
+<!-- O style inline com !important blinda o admin contra a fonte Bauhaus do main.css -->
+<body class="bg-surface-container-low text-on-background antialiased overflow-x-hidden min-h-screen" style="font-family: 'Roboto', sans-serif !important;">
+    <div id="root"></div>
     <script type="module" src="/src/Admin.jsx"></script>
-  </body>
+</body>
 </html>

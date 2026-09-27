@@ -1,29 +1,24 @@
+/* Fontes Bauhaus locais mantidas. O Google Fonts (Lato/Roboto) foi limpo para performance. */
+@font-face {
+    font-family: 'Bauhaus 93';
+    src: local('Bauhaus 93'), local('Bauhaus93');
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer utilities {
   .hairline-border {
-    border: 1px solid theme('colors.on-background');
+    border: 1px solid theme('colors.outline-variant');
   }
   
   .hairline-border-t {
-    border-top: 1px solid theme('colors.on-background');
+    border-top: 1px solid theme('colors.outline-variant');
   }
 
   .hairline-border-b {
-    border-bottom: 1px solid theme('colors.on-background');
-  }
-
-  .mesh-gradient-bg {
-    background: radial-gradient(circle at 20% 30%, theme('colors.surface-container') 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, theme('colors.primary-container') 0%, transparent 50%);
-    background-color: theme('colors.background');
-  }
-  
-  .vogue-headline {
-    font-family: 'Bodoni Moda', serif;
-    text-transform: lowercase;
+    border-bottom: 1px solid theme('colors.outline-variant');
   }
 }
 
@@ -32,11 +27,26 @@
 }
 
 ::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: theme('colors.surface-container-lowest');
+}
+
+::-webkit-scrollbar-thumb {
+  background: theme('colors.outline-variant');
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.primary');
 }
 
 body {
   background-color: theme('colors.background');
   color: theme('colors.on-background');
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

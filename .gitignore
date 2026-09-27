@@ -1,6 +1,13 @@
+# Dependências
 node_modules/
 dist/
 .cache/
+
+# Variáveis de Ambiente (CRÍTICO)
+.env
+.env.*
 *.local
+
+# SO
 .DS_Store
 Thumbs.db

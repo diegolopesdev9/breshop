@@ -1,0 +1,9 @@
+# Breshop
+> Marketplace de moda circular que conecta brechós online a pessoas interessadas em compras de segunda mão sustentáveis.
+
+## Páginas principais
+- [Comprar](https://www.breshop.com.br/comprar): Catálogo de peças disponíveis.
+- [Lojinhas](https://www.breshop.com.br/lojinhas): Vitrines dos brechós parceiros.
+- [Sobre](https://www.breshop.com.br/sobre): Sobre a plataforma e sua missão.
+- [FAQ](https://www.breshop.com.br/faq): Perguntas frequentes e ajuda.
+- [Privacidade](https://www.breshop.com.br/privacidade): Nossa política de privacidade e LGPD.

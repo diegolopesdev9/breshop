@@ -3,76 +3,205 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    
-    <title>Minha Conta | A GARIMPEIRAbr</title>
-    <meta name="description" content="Gerencie seus pedidos e dados na A Garimpeira." />
-    <meta name="keywords" content="brechó online, curadoria vintage, second hand, roupas vintage, moda sustentável, a garimpeira, brechó itapetininga" />
-    <meta name="author" content="A Garimpeirabr" />
-    <link rel="canonical" href="https://www.agarimpeirabr.com.br/minha-conta" />
-
-    <meta property="og:title" content="Minha Conta | A GARIMPEIRAbr" />
-    <meta property="og:description" content="Gerencie seus pedidos e dados na A Garimpeira." />
-    <meta property="og:image" content="https://www.agarimpeirabr.com.br/logo.webp" />
-    <meta property="og:url" content="https://www.agarimpeirabr.com.br/minha-conta" />
-    <meta property="og:type" content="website" />
-
+    <title>Minha Conta | Breshop</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="/favicon.webp" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/src/css/main.css" />
-    <link rel="icon" type="image/webp" href="/favicon.webp" />
 </head>
-<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background">
+<body class="antialiased bg-background text-on-background font-body-md overflow-x-hidden min-h-screen flex flex-col">
 
-    <main class="pt-[140px] pb-24 max-w-2xl mx-auto px-6 md:px-8 min-h-[70vh]">
-        <div class="mb-12 border-b border-outline/10 pb-8 flex justify-between items-end">
+    <main class="pt-[100px] pb-24 max-w-3xl mx-auto w-full px-4 md:px-8 flex-1">
+        <div class="mb-8 border-b border-outline-variant pb-6 flex justify-between items-center">
             <div>
-                <h1 class="font-serif text-4xl md:text-5xl text-on-background italic mb-4">Minha Conta.</h1>
-                <p class="text-sm text-on-surface-variant uppercase tracking-widest">Gerencie seus dados e pedidos</p>
+                <h1 class="font-headline-xl text-4xl md:text-5xl text-on-background mb-2">Minha Conta.</h1>
+                <p class="font-body-md text-sm text-on-surface-variant">Gerencie seus dados e sua lojinha.</p>
             </div>
-            <button id="btn-logout" class="text-xs font-bold uppercase tracking-widest text-error hover:text-error/80 transition-colors flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-                Sair
+            <button id="btn-logout" class="bg-surface-container border border-outline-variant text-error font-label-lg text-xs font-bold uppercase tracking-widest py-2 px-4 rounded-full hover:bg-error-container transition-colors flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">logout</span> Sair
             </button>
         </div>
 
-        <div class="flex gap-6 mb-8 border-b border-outline/20">
-            <button id="tab-dados" class="pb-3 border-b-2 border-on-background font-bold text-xs uppercase tracking-widest text-on-background transition-colors">Meus Dados</button>
-            <button id="tab-pedidos" class="pb-3 border-b-2 border-transparent font-bold text-xs uppercase tracking-widest text-on-surface-variant hover:text-on-background transition-colors">Meus Pedidos</button>
+        <div class="flex gap-2 mb-8 overflow-x-auto scrollbar-hide bg-surface-container p-1 rounded-full w-max border border-outline-variant">
+            <button id="tab-dados" class="px-6 py-2 rounded-full font-label-lg font-bold text-xs uppercase tracking-widest transition-all bg-surface text-on-background shadow-sm">Meus Dados</button>
+            <button id="tab-pedidos" class="px-6 py-2 rounded-full font-label-lg font-bold text-xs uppercase tracking-widest transition-all text-on-surface-variant hover:text-on-background hover:bg-surface/50">Minhas Compras</button>
+            <button id="tab-lojinha" class="px-6 py-2 rounded-full font-label-lg font-bold text-xs uppercase tracking-widest transition-all text-on-surface-variant hover:text-on-background hover:bg-surface/50">Minha Lojinha</button>
         </div>
 
+        <!-- Aba: Dados -->
         <div id="content-dados" class="block">
-            <form id="form-minha-conta" class="flex flex-col gap-6 bg-surface-container p-8 hairline-border shadow-lg">
-                <div class="flex flex-col gap-2 mb-2">
-                    <label class="text-xs font-bold uppercase tracking-widest text-on-background">E-mail Logado</label>
-                    <input id="conta-email" type="email" readonly class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-full text-on-surface-variant opacity-70 cursor-not-allowed transition-colors">
+            <form id="form-minha-conta" class="flex flex-col gap-4 bg-surface-container rounded-3xl p-6 md:p-8 border border-outline-variant shadow-sm">
+                <div class="flex flex-col gap-2">
+                    <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">E-mail Logado</label>
+                    <input id="conta-email" type="email" readonly class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none w-full text-sm font-body-md text-on-surface-variant opacity-70 cursor-not-allowed">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="text-xs font-bold uppercase tracking-widest text-on-background">Nome Completo</label>
-                    <input id="conta-nome" type="text" required class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-on-background transition-colors">
+                    <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">Nome Completo</label>
+                    <input id="conta-nome" type="text" required class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="text-xs font-bold uppercase tracking-widest text-on-background">CPF</label>
-                    <input id="conta-cpf" type="text" required class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-on-background transition-colors">
+                    <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">Documento (Sigiloso)</label>
+                    <div class="relative w-full">
+                        <input id="conta-cpf" type="password" required class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md pr-12">
+                        <button type="button" id="toggle-cpf" class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="text-xs font-bold uppercase tracking-widest text-on-background">Telefone / WhatsApp</label>
-                    <input id="conta-telefone" type="text" required class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-on-background transition-colors">
+                    <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">WhatsApp</label>
+                    <input id="conta-telefone" type="text" required class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md">
                 </div>
-                <button type="submit" class="mt-4 w-full bg-on-background text-on-primary text-sm uppercase tracking-[0.2em] py-4 hover:bg-primary-container transition-all duration-300 font-bold">
+                <button type="submit" class="mt-2 w-full bg-on-background text-background font-label-lg text-sm uppercase tracking-widest py-4 rounded-full hover:opacity-90 transition-all font-bold">
                     Salvar Alterações
                 </button>
             </form>
+
+            <!-- ZONA DE PERIGO (LGPD) -->
+            <div class="mt-8 pt-8 border-t border-outline-variant">
+                <h3 class="font-headline-xl text-xl text-error mb-4">Zona de Perigo</h3>
+                <p class="font-body-md text-sm text-on-surface-variant mb-6">Em conformidade com a LGPD, você tem controle total sobre suas informações.</p>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <button id="btn-exportar-dados" type="button" class="flex-1 bg-surface border border-outline-variant text-on-background font-label-lg text-xs font-bold uppercase tracking-widest py-4 rounded-xl hover:bg-surface-container transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <span class="material-symbols-outlined text-[18px]">download</span> Exportar Meus Dados
+                    </button>
+                    <button id="btn-excluir-conta" type="button" class="flex-1 bg-error/10 border border-error/20 text-error font-label-lg text-xs font-bold uppercase tracking-widest py-4 rounded-xl hover:bg-error hover:text-white transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <span class="material-symbols-outlined text-[18px]">delete_forever</span> Excluir Minha Conta
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div id="content-pedidos" class="hidden flex-col gap-4">
             <div id="lista-pedidos" class="flex flex-col gap-4">
-                <p class="text-sm text-on-surface-variant py-8 text-center italic">Buscando seus pedidos...</p>
+                <p class="font-body-md text-sm text-on-surface-variant py-8 text-center">Buscando suas compras...</p>
             </div>
         </div>
+
+        <div id="content-lojinha" class="hidden flex-col gap-4">
+            <div id="lojinha-onboarding" class="hidden flex flex-col gap-6 bg-surface-container rounded-3xl p-8 border border-outline-variant shadow-sm text-center">
+                <span class="material-symbols-outlined text-5xl text-primary mx-auto">storefront</span>
+                <div>
+                    <h2 class="font-headline-xl text-3xl text-on-background mb-2">Abra sua Lojinha.</h2>
+                    <p class="font-body-md text-sm text-on-surface-variant max-w-md mx-auto">Configure os dados básicos de envio e o nome da sua loja para começar a anunciar seus desapegos.</p>
+                </div>
+                <form id="form-ativar-lojinha" class="flex flex-col gap-4 mt-2 text-left">
+                    <div class="flex flex-col gap-2">
+                        <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">Nome da sua Lojinha</label>
+                        <input id="lojinha-nome-ativar" type="text" placeholder="Ex: Desapegos da Maria" required class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md text-center">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">CEP de Origem (Seu Endereço)</label>
+                        <input id="lojinha-cep" type="text" placeholder="00000-000" required maxlength="9" class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md text-center text-lg tracking-widest">
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-on-primary font-label-lg text-sm uppercase tracking-widest py-4 rounded-full hover:opacity-90 transition-all font-bold mt-2 shadow-md">
+                        Ativar Minha Lojinha
+                    </button>
+                </form>
+            </div>
+
+            <div id="lojinha-dashboard" class="hidden flex flex-col gap-6">
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-surface-container rounded-3xl p-6 border border-outline-variant shadow-sm">
+                    <div>
+                        <h2 class="font-headline-xl text-2xl text-on-background">Painel do Vendedor</h2>
+                        <p class="font-label-sm text-xs font-bold uppercase tracking-widest text-primary mt-1">Status: Loja Ativa</p>
+                    </div>
+                    <button onclick="window.location.href='/vender'" class="w-full md:w-auto bg-primary text-on-primary font-label-lg text-xs uppercase tracking-widest py-3 px-6 rounded-full hover:opacity-90 transition-all font-bold flex items-center justify-center gap-2 shadow-md">
+                        <span class="material-symbols-outlined text-[18px]">add_circle</span> Anunciar Peça
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                     <div id="card-ativas" class="bg-surface-container-low rounded-3xl p-4 md:p-6 border border-outline-variant flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary hover:shadow-md transition-all group">
+                        <span class="font-label-lg text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 group-hover:text-primary transition-colors">Anúncios Ativos</span>
+                        <span id="metric-ativas" class="font-headline-xl text-3xl md:text-4xl text-on-background group-hover:text-primary transition-colors">0</span>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Ver Peças &rarr;</span>
+                     </div>
+                     <div id="card-valor-estoque" class="bg-surface-container-low rounded-3xl p-4 md:p-6 border border-outline-variant flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary hover:shadow-md transition-all group">
+                        <span class="font-label-lg text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 group-hover:text-primary transition-colors">Valor Anunciado</span>
+                        <span id="metric-valor-estoque" class="font-headline-xl text-xl md:text-2xl text-on-background group-hover:text-primary transition-colors mt-2">R$ 0,00</span>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Gerenciar &rarr;</span>
+                     </div>
+                     <div id="card-vendidas" class="bg-surface-container-low rounded-3xl p-4 md:p-6 border border-outline-variant flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary hover:shadow-md transition-all group">
+                        <span class="font-label-lg text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 group-hover:text-primary transition-colors">Peças Vendidas</span>
+                        <span id="metric-vendidas" class="font-headline-xl text-3xl md:text-4xl text-on-background group-hover:text-primary transition-colors">0</span>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Ver Extrato &rarr;</span>
+                     </div>
+                     <div id="card-saldo" class="bg-primary-container/20 rounded-3xl p-4 md:p-6 border border-primary/30 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary hover:shadow-md transition-all group relative overflow-hidden">
+                        <span class="font-label-lg text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Saldo a Receber</span>
+                        <span id="metric-saldo" class="font-headline-xl text-xl md:text-2xl text-primary mt-2">R$ 0,00</span>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-primary mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Detalhes &rarr;</span>
+                     </div>
+                </div>
+
+                <form id="form-personalizar-lojinha" class="bg-surface-container rounded-3xl p-6 md:p-8 border border-outline-variant shadow-sm flex flex-col gap-6 mt-4">
+                    <h3 class="font-headline-xl text-2xl text-on-background border-b border-outline-variant pb-4">Personalizar Lojinha</h3>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">Nome da Loja Público</label>
+                        <input id="lojinha-nome-edit" type="text" class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">Sua Logo</label>
+                            <div class="bg-surface border border-outline-variant rounded-xl p-4 flex flex-col items-center justify-center gap-3">
+                                <img id="preview-logo" src="/logo.png" class="w-16 h-16 rounded-full object-cover border border-outline-variant bg-surface-container" />
+                                <input type="file" id="upload-logo" accept="image/*" class="text-[10px] text-on-surface-variant w-full" />
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">Banner da Loja</label>
+                            <div class="bg-surface border border-outline-variant rounded-xl p-4 flex flex-col items-center justify-center gap-3">
+                                <img id="preview-banner" src="" class="w-full h-16 rounded-lg object-cover border border-outline-variant bg-surface-container" alt="Sem banner" />
+                                <input type="file" id="upload-banner" accept="image/*" class="text-[10px] text-on-surface-variant w-full" />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-salvar-personalizacao" class="w-full bg-on-background text-background font-label-lg text-sm uppercase tracking-widest py-4 rounded-full hover:opacity-90 transition-all font-bold mt-2">
+                        Salvar Visual da Loja
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Estoque -->
+        <div id="modal-estoque" class="fixed inset-0 bg-[#1E293B]/80 backdrop-blur-sm z-[200] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+            <div class="bg-surface w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[85vh] transform scale-95 transition-transform duration-300" id="modal-estoque-content">
+                <div class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-low rounded-t-3xl">
+                    <div>
+                        <h2 class="font-headline-xl text-2xl text-on-background">Gerenciar Estoque</h2>
+                        <p class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mt-1">Peças visíveis na sua vitrine</p>
+                    </div>
+                    <button id="close-modal-estoque" class="text-on-surface-variant hover:text-error bg-surface rounded-full p-2 border border-outline-variant shadow-sm transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">close</span>
+                    </button>
+                </div>
+                <div id="estoque-lista" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 scrollbar-hide">
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Vendas/Financeiro -->
+        <div id="modal-vendas" class="fixed inset-0 bg-[#1E293B]/80 backdrop-blur-sm z-[200] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+            <div class="bg-surface w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[85vh] transform scale-95 transition-transform duration-300" id="modal-vendas-content">
+                <div class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-low rounded-t-3xl">
+                    <div>
+                        <h2 class="font-headline-xl text-2xl text-on-background">Extrato de Vendas</h2>
+                        <p class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mt-1">Histórico e divisão de repasses</p>
+                    </div>
+                    <button id="close-modal-vendas" class="text-on-surface-variant hover:text-error bg-surface rounded-full p-2 border border-outline-variant shadow-sm transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">close</span>
+                    </button>
+                </div>
+                <div id="vendas-lista" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 scrollbar-hide">
+                </div>
+            </div>
+        </div>
+
     </main>
 
-    <script type="module" src="../js/minha-conta.js"></script>
+    <script type="module" src="/src/js/minha-conta.js"></script>
 </body>
 </html>

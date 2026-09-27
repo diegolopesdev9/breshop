@@ -49,12 +49,13 @@ export function renderCheckout() {
 
   if (!cartItemsContainer) return;
 
-  cartItemsContainer.classList.add("overflow-y-auto", "max-h-[calc(100vh-280px)]", "pr-2", "pb-4");
+  // Ajusta o contêiner para ter scroll e padding
+  cartItemsContainer.classList.add("overflow-y-auto", "max-h-[calc(100vh-280px)]", "pr-2", "pb-4", "scrollbar-hide");
 
   const items = cartService.getItems();
   
   if (items.length === 0) {
-    cartItemsContainer.innerHTML = '<p class="text-on-surface-variant text-sm font-label-lg uppercase tracking-widest">Sua sacola está vazia.</p>';
+    cartItemsContainer.innerHTML = '<div class="h-full flex flex-col items-center justify-center text-center opacity-50"><span class="material-symbols-outlined text-5xl mb-2 text-on-surface-variant">production_quantity_limits</span><p class="font-body-md text-sm text-on-surface-variant">Sua sacola está vazia.</p></div>';
     if (cartTotalElement) cartTotalElement.textContent = "R$ 0,00";
     if (btnSubmit) btnSubmit.disabled = true;
     selectedFreight = 0;
@@ -64,14 +65,18 @@ export function renderCheckout() {
     return;
   }
 
+  // Renderiza os itens no novo formato de Card App
   const itemsHTML = items.map(item => `
-    <div class="flex items-center gap-4 border-b hairline-border pb-4 mb-4">
-      <img src="${item.image}" alt="${item.title}" class="w-20 h-24 object-cover border hairline-border bg-surface-container">
-      <div class="flex-1">
-        <h4 class="font-label-lg text-label-lg text-on-background uppercase tracking-widest leading-tight">${item.title}</h4>
-        <p class="font-body-md text-body-md text-on-surface-variant mt-1">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+    <div class="flex items-center gap-4 bg-surface-container rounded-3xl p-4 mb-4 border border-outline-variant shadow-sm">
+      <img src="${item.image}" alt="${item.title}" class="w-20 h-24 object-cover rounded-2xl border border-outline-variant bg-surface">
+      <div class="flex-1 overflow-hidden">
+        <h4 class="font-label-lg font-bold text-sm text-on-background truncate w-full">${item.title}</h4>
+        <p class="font-body-md text-sm text-primary font-bold mt-1">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+        <p class="font-label-sm text-[10px] text-on-surface-variant uppercase mt-1 tracking-widest truncate">Loja: ${item.seller_id ? item.seller_id.split('-')[0] : 'Plataforma'}</p>
       </div>
-      <button onclick="cartService.removeItem('${item.id}')" class="text-on-surface-variant hover:text-error material-symbols-outlined transition-colors">delete</button>
+      <button onclick="cartService.removeItem('${item.id}')" class="text-on-surface-variant hover:text-error bg-surface rounded-full p-2 border border-outline-variant shadow-sm transition-colors shrink-0 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[18px]">delete</span>
+      </button>
     </div>
   `).join("");
 
@@ -79,7 +84,7 @@ export function renderCheckout() {
 
   let freightArea = document.createElement("div");
   freightArea.id = "freight-area";
-  freightArea.className = "mt-2 pb-4";
+  freightArea.className = "mt-4 pb-4";
   cartItemsContainer.appendChild(freightArea);
 
   renderFreightUI(freightArea);
@@ -107,7 +112,7 @@ function updateCartTotal() {
 
   if (discountInfoElement) {
       if (appliedCoupon) {
-          discountInfoElement.innerHTML = `<p class="text-primary text-xs font-bold tracking-widest uppercase mt-2 border border-primary/20 bg-primary/5 px-3 py-2">Cupom aplicado: - R$ ${discountAmount.toFixed(2).replace('.', ',')}</p>`;
+          discountInfoElement.innerHTML = `<p class="text-primary font-label-sm text-[10px] font-bold tracking-widest uppercase mt-2 border border-primary bg-primary-container px-3 py-2 rounded-xl text-center">Cupom aplicado: - R$ ${discountAmount.toFixed(2).replace('.', ',')}</p>`;
       } else {
           discountInfoElement.innerHTML = '';
       }
@@ -118,38 +123,43 @@ function updateCartTotal() {
       const hasNumber = addrNumberInput ? addrNumberInput.value.trim().length > 0 : false;
       
       btnSubmit.disabled = (selectedFreight === 0 || cartService.getItems().length === 0 || !hasNumber);
+      if(btnSubmit.disabled) {
+          btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+      } else {
+          btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
   }
 }
 
 function renderFreightUI(container) {
   container.innerHTML = `
-      <div class="pt-4 border-t hairline-border">
-         <label class="text-[10px] font-bold uppercase tracking-widest text-on-background mb-3 block">Calcular Frete & Endereço</label>
+      <div class="pt-6 border-t border-outline-variant">
+         <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background mb-3 block">Calcular Frete & Endereço</label>
          <div class="flex gap-2">
-             <input type="text" id="cep-input" placeholder="00000-000" maxlength="9" class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-full text-sm text-on-background">
-             <button id="btn-calc-freight" class="bg-on-background text-background px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-primary-container transition-colors">OK</button>
+             <input type="text" id="cep-input" placeholder="00000-000" maxlength="9" class="bg-surface border border-outline-variant rounded-full px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md text-center tracking-widest transition-colors">
+             <button id="btn-calc-freight" class="bg-primary text-on-primary px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md">OK</button>
          </div>
          
-         <div id="freight-options" class="mt-4 flex flex-col gap-2"></div>
+         <div id="freight-options" class="mt-4 flex flex-col gap-3"></div>
 
-         <div id="address-form-area" class="hidden mt-4 pt-4 border-t hairline-border flex-col gap-3">
-             <input type="text" id="addr-street" placeholder="Rua / Avenida" disabled class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-full text-sm text-on-background opacity-70">
+         <div id="address-form-area" class="hidden mt-4 pt-4 border-t border-outline-variant flex-col gap-3">
+             <input type="text" id="addr-street" placeholder="Rua / Avenida" disabled class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none w-full text-sm font-body-md text-on-surface-variant opacity-70">
              <div class="flex gap-2">
-                 <input type="text" id="addr-number" placeholder="Número *" class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-1/3 text-sm text-on-background transition-colors focus:border-primary">
-                 <input type="text" id="addr-comp" placeholder="Complemento" class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-2/3 text-sm text-on-background">
+                 <input type="text" id="addr-number" placeholder="Número *" class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-1/3 text-sm font-body-md transition-colors">
+                 <input type="text" id="addr-comp" placeholder="Complemento" class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-2/3 text-sm font-body-md transition-colors">
              </div>
-             <input type="text" id="addr-district" placeholder="Bairro" disabled class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-full text-sm text-on-background opacity-70">
+             <input type="text" id="addr-district" placeholder="Bairro" disabled class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none w-full text-sm font-body-md text-on-surface-variant opacity-70">
              <div class="flex gap-2">
-                 <input type="text" id="addr-city" placeholder="Cidade" disabled class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-2/3 text-sm text-on-background opacity-70">
-                 <input type="text" id="addr-state" placeholder="UF" disabled class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-1/3 text-sm text-on-background opacity-70">
+                 <input type="text" id="addr-city" placeholder="Cidade" disabled class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none w-2/3 text-sm font-body-md text-on-surface-variant opacity-70">
+                 <input type="text" id="addr-state" placeholder="UF" disabled class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none w-1/3 text-sm font-body-md text-on-surface-variant opacity-70">
              </div>
          </div>
 
-         <div class="mt-8 pt-4 border-t hairline-border">
-             <label class="text-[10px] font-bold uppercase tracking-widest text-on-background mb-3 block">Cupom de Desconto</label>
+         <div class="mt-8 pt-6 border-t border-outline-variant">
+             <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background mb-3 block">Cupom de Desconto</label>
              <div class="flex gap-2">
-                 <input type="text" id="coupon-input" placeholder="AGBR-XXXXX" class="bg-transparent border-b hairline-border px-0 py-2 outline-none w-full text-sm text-on-background uppercase">
-                 <button id="btn-apply-coupon" class="bg-surface-container text-on-background px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-on-background hover:text-background transition-colors border hairline-border">Aplicar</button>
+                 <input type="text" id="coupon-input" placeholder="CÓDIGO" class="bg-surface border border-outline-variant rounded-full px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md uppercase text-center transition-colors">
+                 <button id="btn-apply-coupon" class="bg-surface border border-outline-variant text-on-background px-4 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-surface-container transition-colors shadow-sm">Aplicar</button>
              </div>
              <div id="discount-info-area" class="mt-2"></div>
          </div>
@@ -206,8 +216,8 @@ function renderFreightUI(container) {
               appliedCoupon = code;
               couponInput.disabled = true;
               btnApplyCoupon.textContent = "✓";
-              btnApplyCoupon.classList.replace("bg-surface-container", "bg-primary-container");
-              btnApplyCoupon.classList.replace("text-on-background", "text-on-primary-container");
+              btnApplyCoupon.classList.replace("bg-surface", "bg-primary");
+              btnApplyCoupon.classList.replace("text-on-background", "text-on-primary");
               updateCartTotal();
           } else {
               alert("Cupom inválido, expirado ou não pertence à sua conta.");
@@ -229,7 +239,7 @@ function renderFreightUI(container) {
       }
 
       const optionsContainer = document.getElementById("freight-options");
-      optionsContainer.innerHTML = '<p class="text-xs text-on-surface-variant italic animate-pulse">Consultando fretes e endereço...</p>';
+      optionsContainer.innerHTML = '<p class="font-body-md text-xs text-on-surface-variant text-center animate-pulse">Calculando rotas e pacotes...</p>';
       btnCalc.disabled = true;
       addressArea.classList.replace("flex", "hidden");
 
@@ -248,36 +258,8 @@ function renderFreightUI(container) {
           
           addressArea.classList.replace("hidden", "flex");
 
-          const subtotal = cartService.getTotalPrice();
-          if (subtotal >= 1200) {
-              optionsContainer.innerHTML = `
-                  <label class="flex items-center justify-between p-3 border hairline-border cursor-pointer bg-surface-container-low transition-colors">
-                      <div class="flex items-center gap-3">
-                          <input type="radio" name="freight_option" value="0" data-name="Frete Grátis VIP" class="accent-on-background w-4 h-4" checked>
-                          <div class="flex flex-col">
-                              <span class="text-xs font-bold uppercase tracking-widest text-on-background">CORTESIA</span>
-                              <span class="text-[10px] text-on-surface-variant uppercase">Promoção Compras Acima de R$ 1.200</span>
-                          </div>
-                      </div>
-                      <span class="text-sm font-bold text-primary uppercase">Grátis</span>
-                  </label>
-              `;
-              
-              const checkedRadio = optionsContainer.querySelector('input[type="radio"]');
-              selectedFreight = 0;
-              selectedFreightName = checkedRadio.getAttribute('data-name');
-              
-              checkedRadio.addEventListener('change', () => {
-                  selectedFreight = parseFloat(checkedRadio.value);
-                  selectedFreightName = checkedRadio.getAttribute('data-name');
-                  updateCartTotal();
-              });
-              
-              updateCartTotal();
-              return; 
-          }
-
           const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          
           const response = await fetch(`${supabaseUrl}/functions/v1/calcular-frete`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -292,20 +274,20 @@ function renderFreightUI(container) {
           const fretes = await response.json();
           
           if (!fretes || fretes.length === 0) {
-               optionsContainer.innerHTML = '<p class="text-xs text-error uppercase tracking-widest">Nenhuma opção de frete disponível para este CEP.</p>';
+               optionsContainer.innerHTML = '<p class="font-body-md text-xs text-error uppercase tracking-widest text-center">Nenhuma opção de frete disponível para este CEP.</p>';
                return;
           }
 
           optionsContainer.innerHTML = fretes.map((frete, index) => `
-              <label class="flex items-center justify-between p-3 border hairline-border cursor-pointer hover:bg-surface-container transition-colors">
+              <label class="flex items-center justify-between p-4 bg-surface rounded-2xl border border-outline-variant cursor-pointer hover:border-primary transition-colors shadow-sm">
                   <div class="flex items-center gap-3">
-                      <input type="radio" name="freight_option" value="${frete.preco}" data-name="${frete.empresa} - ${frete.nome}" class="accent-on-background w-4 h-4" ${index === 0 ? 'checked' : ''}>
+                      <input type="radio" name="freight_option" value="${frete.preco}" data-name="${frete.empresa} - ${frete.nome}" class="accent-primary w-4 h-4" ${index === 0 ? 'checked' : ''}>
                       <div class="flex flex-col">
-                          <span class="text-xs font-bold uppercase tracking-widest text-on-background">${frete.empresa}</span>
-                          <span class="text-[10px] text-on-surface-variant uppercase">${frete.nome} + Embalagem (Prazo: ${frete.prazo} dias)</span>
+                          <span class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">${frete.empresa}</span>
+                          <span class="font-label-sm text-[10px] text-on-surface-variant uppercase mt-1">Prazo: ${frete.prazo} dias</span>
                       </div>
                   </div>
-                  <span class="text-sm font-serif text-on-background">R$ ${frete.preco.toFixed(2).replace('.', ',')}</span>
+                  <span class="font-body-md text-sm font-bold text-on-background">R$ ${frete.preco.toFixed(2).replace('.', ',')}</span>
               </label>
           `).join("");
 
@@ -323,7 +305,7 @@ function renderFreightUI(container) {
           updateSelected();
 
       } catch (error) {
-          optionsContainer.innerHTML = `<p class="text-xs text-error uppercase">${error.message}</p>`;
+          optionsContainer.innerHTML = `<p class="font-body-md text-xs text-error text-center">${error.message}</p>`;
       } finally {
           btnCalc.disabled = false;
       }
@@ -331,7 +313,6 @@ function renderFreightUI(container) {
 }
 
 export function initCheckoutListeners() {
-  
   const urlParams = new URLSearchParams(window.location.search);
   const isApproved = urlParams.get('status') === 'approved' || urlParams.get('collection_status') === 'approved';
   
@@ -372,7 +353,7 @@ export function initCheckoutListeners() {
       tabLogin.classList.replace("text-on-surface-variant", "text-primary");
       tabRegister.classList.replace("border-primary", "border-transparent");
       tabRegister.classList.replace("text-primary", "text-on-surface-variant");
-      authDrawerTitle.textContent = "Entrar.";
+      authDrawerTitle.textContent = "Entrar";
     });
 
     tabRegister.addEventListener("click", () => {
@@ -382,7 +363,7 @@ export function initCheckoutListeners() {
       tabRegister.classList.replace("text-on-surface-variant", "text-primary");
       tabLogin.classList.replace("border-primary", "border-transparent");
       tabLogin.classList.replace("text-primary", "text-on-surface-variant");
-      authDrawerTitle.textContent = "Criar Conta.";
+      authDrawerTitle.textContent = "Criar Lojinha";
     });
   }
 
@@ -412,10 +393,9 @@ export function initCheckoutListeners() {
         id: item.id,
         title: item.title,
         price: item.price,
-        quantity: item.quantity || 1,
-        custom_items: item.custom_items || null,
-        is_custom_pack: item.is_custom_pack || false,
-        image: item.image || item.url_foto || ""
+        quantity: 1,
+        seller_id: item.seller_id,
+        image: item.image
       }));
 
       const payload = {
@@ -471,10 +451,10 @@ export function initCheckoutListeners() {
 
         if (paymentArea) {
           paymentArea.innerHTML = `
-            <div class="text-center flex flex-col items-center justify-center h-full gap-4">
-              <span class="material-symbols-outlined text-4xl text-primary animate-spin">autorenew</span>
-              <h4 class="font-headline-lg text-xl uppercase">Redirecionando...</h4>
-              <p class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest">Abrindo ambiente seguro do Mercado Pago.</p>
+            <div class="text-center flex flex-col items-center justify-center h-full gap-4 py-8">
+              <span class="material-symbols-outlined text-5xl text-primary animate-spin">autorenew</span>
+              <h4 class="font-headline-xl text-2xl text-on-background">Redirecionando...</h4>
+              <p class="font-body-md text-sm text-on-surface-variant">Abrindo ambiente seguro de pagamento.</p>
             </div>
           `;
         }
@@ -496,23 +476,25 @@ export function showSuccessModal(orderId = '') {
 
     const modal = document.createElement('div');
     modal.id = 'success-modal';
-    modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-stone-900/80 backdrop-blur-md opacity-0 transition-opacity duration-300 p-4';
+    modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-on-background/50 backdrop-blur-md opacity-0 transition-opacity duration-300 p-4';
     
     modal.innerHTML = `
-        <div class="bg-background p-8 md:p-12 max-w-md w-full border hairline-border shadow-2xl relative transform scale-95 transition-transform duration-300 flex flex-col items-center text-center">
-            <span class="material-symbols-outlined text-6xl text-primary mb-6">check_circle</span>
+        <div class="bg-surface p-8 md:p-12 max-w-md w-full rounded-3xl border border-outline-variant shadow-2xl relative transform scale-95 transition-transform duration-300 flex flex-col items-center text-center">
+            <div class="w-20 h-20 bg-primary-container rounded-full flex items-center justify-center mb-6">
+                <span class="material-symbols-outlined text-4xl text-primary">check_circle</span>
+            </div>
             
-            <h2 class="font-serif text-4xl md:text-5xl text-on-background italic mb-2">Sucesso.</h2>
-            <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-6 font-bold">
+            <h2 class="font-headline-xl text-4xl text-on-background mb-2">Sucesso!</h2>
+            <p class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-6 font-bold bg-surface-container px-3 py-1 rounded-md">
                 Pedido ${orderId ? '#' + orderId : 'Confirmado'}
             </p>
             
-            <p class="text-sm text-on-background/80 mb-8 leading-relaxed">
-                O seu pack foi garantido! Enviamos todos os detalhes e o recibo para o seu e-mail. Agora é com a gente: vamos embalar suas peças com carinho para que cheguem prontas para a sua arara.
+            <p class="font-body-md text-sm text-on-surface-variant mb-8 leading-relaxed">
+                As suas peças foram garantidas! O pagamento foi processado e as lojinhas já foram notificadas para embalarem seus itens.
             </p>
             
-            <button id="btn-close-success" class="bg-on-background text-background text-xs font-bold uppercase tracking-[0.2em] py-4 px-8 w-full hover:bg-primary transition-colors shadow-lg">
-                Continuar Garimpando
+            <button id="btn-close-success" class="bg-primary text-on-primary font-label-lg text-sm font-bold uppercase tracking-widest py-4 px-8 rounded-full w-full hover:opacity-90 transition-colors shadow-md">
+                Continuar Comprando
             </button>
         </div>
     `;
@@ -532,7 +514,7 @@ export function showSuccessModal(orderId = '') {
         
         setTimeout(() => {
             modal.remove();
-            window.location.href = '/packs'; 
+            window.location.href = '/comprar'; 
         }, 300);
     });
 }

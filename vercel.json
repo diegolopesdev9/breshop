@@ -2,37 +2,35 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/packs", "destination": "/src/pages/packs" },
-    { "source": "/garimpos", "destination": "/src/pages/garimpos" },
-    { "source": "/drops", "destination": "/src/pages/drops" },
-    { "source": "/sobre", "destination": "/src/pages/sobre" },
-    { "source": "/contato", "destination": "/src/pages/contato" },
-    { "source": "/faq", "destination": "/src/pages/faq" },
-    { "source": "/trocas", "destination": "/src/pages/trocas" },
-    { "source": "/privacidade", "destination": "/src/pages/privacidade" },
-    { "source": "/termos", "destination": "/src/pages/termos" },
-    { "source": "/minha-conta", "destination": "/src/pages/minha-conta" },
-    { "source": "/nova-senha", "destination": "/src/pages/nova-senha" },
-    { "source": "/admin", "destination": "/admin" },
-    { "source": "/peca", "destination": "/src/pages/peca" }
+    { "source": "/comprar", "destination": "/src/pages/comprar.html" },
+    { "source": "/lojinhas", "destination": "/src/pages/lojinhas.html" },
+    { "source": "/sobre", "destination": "/src/pages/sobre.html" },
+    { "source": "/contato", "destination": "/src/pages/contato.html" },
+    { "source": "/faq", "destination": "/src/pages/faq.html" },
+    { "source": "/trocas", "destination": "/src/pages/trocas.html" },
+    { "source": "/privacidade", "destination": "/src/pages/privacidade.html" },
+    { "source": "/termos", "destination": "/src/pages/termos.html" },
+    { "source": "/minha-conta", "destination": "/src/pages/minha-conta.html" },
+    { "source": "/nova-senha", "destination": "/src/pages/nova-senha.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/vender", "destination": "/src/pages/vender.html" },
+    { "source": "/produto/:id/:slug", "destination": "/src/pages/produto.html" },
+    { "source": "/produto", "destination": "/src/pages/produto.html" }
   ],
   "headers": [
     {
-      "source": "/(.*)\\.(js|css|webp|png|jpg|jpeg|svg|avif|woff2?)",
+      "source": "/llms.txt",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, max-age=0, must-revalidate"
-        }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self' https://*.supabase.co https://*.supabase.in; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.asaas.com;" }
       ]
     }
   ]
