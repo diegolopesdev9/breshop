@@ -36,7 +36,7 @@ serve(async (req) => {
     // Faz uma cotação separada para cada vendedor
     for (const sellerId of Object.keys(itemsBySeller)) {
       const sellerItems = itemsBySeller[sellerId];
-      let cepOrigem = "18200358"; // CEP padrão da plataforma (fallback)
+      let cepOrigem = "";
 
       if (sellerId !== 'plataforma') {
         const { data: sellerData } = await supabase
@@ -44,9 +44,14 @@ serve(async (req) => {
           .select('cep_origem')
           .eq('id', sellerId)
           .single();
+          
         if (sellerData && sellerData.cep_origem) {
           cepOrigem = sellerData.cep_origem;
+        } else {
+          throw new Error("Uma das lojas deste pedido não possui CEP de origem cadastrado.");
         }
+      } else {
+        throw new Error("Vendedor inválido para cálculo logístico C2C.");
       }
 
       const melhorenvioProducts = [];
@@ -87,10 +92,13 @@ serve(async (req) => {
       });
 
       const transportadoras = await response.json();
-      if (!response.ok) throw new Error("Erro ao consultar frete para um dos pacotes.");
+      if (!response.ok) throw new Error("Erro ao consultar frete para um dos pacotes na transportadora.");
 
-      // Filtra e pega o mais barato (Econômico) e o mais rápido (Expresso)
       const validOptions = transportadoras.filter((t: any) => !t.error);
+      
+      if (validOptions.length === 0) {
+          throw new Error("Nenhuma transportadora atende a rota solicitada.");
+      }
       
       const economico = validOptions.reduce((prev: any, curr: any) => 
         (parseFloat(prev.price) < parseFloat(curr.price) ? prev : curr)
@@ -99,7 +107,6 @@ serve(async (req) => {
         (parseInt(prev.delivery_time) < parseInt(curr.delivery_time) ? prev : curr)
       );
 
-      // Soma os valores e define o maior prazo para alinhar a expectativa do cliente
       freteEconomicoTotal += parseFloat(economico.price);
       freteExpressoTotal += parseFloat(expresso.price);
       prazoMaximoEconomico = Math.max(prazoMaximoEconomico, parseInt(economico.delivery_time));

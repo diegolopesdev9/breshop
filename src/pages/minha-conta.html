@@ -139,9 +139,15 @@
 
                 <form id="form-personalizar-lojinha" class="bg-surface-container rounded-3xl p-6 md:p-8 border border-outline-variant shadow-sm flex flex-col gap-6 mt-4">
                     <h3 class="font-headline-xl text-2xl text-on-background border-b border-outline-variant pb-4">Personalizar Lojinha</h3>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">Nome da Loja Público</label>
-                        <input id="lojinha-nome-edit" type="text" class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">Nome da Loja Público</label>
+                            <input id="lojinha-nome-edit" type="text" class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md">
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="font-label-lg text-xs font-bold uppercase tracking-widest text-on-background">CEP de Origem (Envios)</label>
+                            <input id="lojinha-cep-edit" type="text" maxlength="9" placeholder="00000-000" required class="bg-surface border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary w-full text-sm font-body-md">
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex flex-col gap-2">

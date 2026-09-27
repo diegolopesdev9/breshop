@@ -2,7 +2,7 @@ import "../css/main.css";
 import { renderLayout } from "./layout.js";
 import { initCheckoutListeners } from "./checkout.js";
 import { initAuth } from "./auth.js";
-import { supabase } from "./supabase.js"; // Correção da importação aqui
+import { supabase } from "./supabase.js"; 
 
 const formatCPF = (value) => {
   if (!value) return '';
@@ -354,6 +354,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           if(!refreshOnly) {
               document.getElementById('lojinha-nome-edit').value = customer.nome_loja || '';
+              
+              const cepEditInput = document.getElementById('lojinha-cep-edit');
+              if (cepEditInput) {
+                  cepEditInput.value = (customer.cep_origem || '').replace(/^(\d{5})(\d)/, '$1-$2');
+                  cepEditInput.oninput = (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2');
+                  };
+              }
+
               if(customer.logo_url) document.getElementById('preview-logo').src = customer.logo_url;
               if(customer.banner_url) document.getElementById('preview-banner').src = customer.banner_url;
           }
@@ -402,6 +411,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                   try {
                       const nomeEditado = document.getElementById('lojinha-nome-edit').value;
+                      const cepEditado = document.getElementById('lojinha-cep-edit').value.replace(/\D/g, '');
+
+                      if (cepEditado.length !== 8) {
+                          alert("Digite um CEP válido com 8 dígitos para o cálculo de frete funcionar.");
+                          btn.textContent = textOriginal;
+                          btn.disabled = false;
+                          return;
+                      }
+
                       const logoFile = document.getElementById('upload-logo').files[0];
                       const bannerFile = document.getElementById('upload-banner').files[0];
                       
@@ -467,6 +485,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                       const { error } = await supabase.from('customers').update({
                           nome_loja: nomeEditado,
+                          cep_origem: cepEditado,
                           logo_url: urlLogo,
                           banner_url: urlBanner
                       }).eq('id', customer.id);
@@ -474,6 +493,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                       if (error) throw error;
 
                       customerData.nome_loja = nomeEditado;
+                      customerData.cep_origem = cepEditado;
                       customerData.logo_url = urlLogo;
                       customerData.banner_url = urlBanner;
                       
