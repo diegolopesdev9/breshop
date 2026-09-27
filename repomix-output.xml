@@ -193,6 +193,158 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 </file>
 
+<file path="src/js/modal.js">
+import { cartService } from "./cart.js";
+import { openCheckout } from "./checkout.js";
+
+const modalOverlay = document.createElement("div");
+modalOverlay.className = "fixed inset-0 bg-background/95 backdrop-blur-md z-[250] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center sm:p-4";
+document.body.appendChild(modalOverlay);
+
+export function openProductModal(product) {
+  const isInCart = cartService.isItemInCart(product.id);
+  const isSoldOut = product.soldOut;
+
+  let btnHtml = "";
+  if (isSoldOut) {
+    btnHtml = `<button disabled class="w-full bg-error text-on-error font-label-lg text-label-lg uppercase tracking-[0.2em] py-4 cursor-not-allowed border hairline-border">SOLD OUT</button>`;
+  } else if (isInCart) {
+    btnHtml = `<button disabled class="w-full bg-surface-variant text-on-surface-variant font-label-lg text-label-lg uppercase tracking-[0.2em] py-4 cursor-default border hairline-border">IN BAG</button>`;
+  } else {
+    btnHtml = `<button id="modal-add-btn" class="w-full bg-on-background text-on-primary font-label-lg text-label-lg uppercase tracking-[0.2em] py-4 hover:bg-primary-container hover:text-on-primary-container hover:border-transparent transition-all duration-300 border hairline-border flex justify-center items-center gap-2">Add to Bag <span class="material-symbols-outlined text-[18px]">east</span></button>`;
+  }
+
+  modalOverlay.innerHTML = `
+    <div class="bg-background w-full h-full md:h-[90vh] md:max-w-[1200px] border border-outline/20 overflow-y-auto flex flex-col relative transform scale-95 transition-transform duration-300 shadow-2xl" id="modal-content">
+        <button id="close-modal" class="absolute top-4 right-4 md:top-6 md:right-6 z-20 text-on-background hover:text-primary transition-colors material-symbols-outlined text-3xl bg-surface/50 rounded-full p-1 backdrop-blur-md">close</button>
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter min-h-full">
+            <div class="md:col-span-7 relative bg-surface-container">
+                <img src="${product.image}" alt="${product.title}" class="w-full h-[50vh] md:h-full object-cover md:absolute md:inset-0" />
+                <div class="absolute top-4 left-4 flex gap-2">
+                    <span class="px-3 py-1 border border-on-background text-on-background font-label-sm text-label-sm uppercase bg-surface/50 backdrop-blur-sm">Archive</span>
+                    ${product.badge ? `<span class="px-3 py-1 border border-on-background text-on-background font-label-sm text-label-sm uppercase bg-surface/50 backdrop-blur-sm">${product.badge}</span>` : ''}
+                </div>
+            </div>
+            
+            <div class="md:col-span-5 flex flex-col justify-center py-stack-lg px-6 md:px-0 md:pr-12 md:pl-8">
+                <nav class="mb-stack-md hidden md:block">
+                    <ol class="flex items-center gap-2 font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">
+                        <li><span class="hover:text-primary transition-colors cursor-pointer" onclick="document.getElementById('close-modal').click()">Shop</span></li>
+                        <li><span class="mx-1">/</span></li>
+                        <li><span class="text-on-background">${product.category}</span></li>
+                    </ol>
+                </nav>
+
+                <div class="mb-stack-lg border-b border-outline/20 pb-stack-sm">
+                    <h1 class="font-headline-xl text-headline-xl mb-2 leading-tight">${product.title}</h1>
+                    <p class="font-headline-lg text-headline-lg text-primary ${isSoldOut ? 'line-through opacity-50' : ''}">R$ ${product.price}</p>
+                </div>
+                
+                <div class="mb-stack-lg">
+                    <p class="font-label-sm text-label-sm uppercase tracking-widest mb-3">Measurements / Specs</p>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="px-4 py-2 border border-on-background text-center min-w-[80px]">
+                            <span class="font-label-sm text-label-sm block uppercase text-on-surface-variant">Condition</span>
+                            <span class="font-body-md text-body-md block mt-1">${product.subtitle.split('•')[0] || 'Vintage'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-stack-lg w-full">
+                    ${btnHtml}
+                </div>
+                
+                <div class="prose max-w-none">
+                    <h3 class="font-headline-lg text-xl mb-4 italic">The Story</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                        ${product.description || "A rare find, curated for its timeless silhouette and impeccable quality. This piece represents the minimal aesthetics of the late 90s."}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+  `;
+
+  modalOverlay.classList.remove("hidden");
+  setTimeout(() => {
+    modalOverlay.classList.add("opacity-100");
+    modalOverlay.querySelector("#modal-content").classList.replace("scale-95", "scale-100");
+  }, 10);
+
+  modalOverlay.querySelector("#close-modal").addEventListener("click", closeModal);
+
+  const addBtn = modalOverlay.querySelector("#modal-add-btn");
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      const result = cartService.addItem(product);
+      if (result.success) {
+        closeModal();
+        openCheckout();
+      }
+    });
+  }
+}
+
+export function closeModal() {
+  modalOverlay.classList.remove("opacity-100");
+  const content = modalOverlay.querySelector("#modal-content");
+  if (content) content.classList.replace("scale-100", "scale-95");
+  setTimeout(() => modalOverlay.classList.add("hidden"), 300);
+}
+
+modalOverlay.addEventListener("click", (e) => {
+  if (e.target === modalOverlay) closeModal();
+});
+</file>
+
+<file path="src/js/nova-senha.js">
+import "../css/main.css";
+import { supabase } from "./supabase.js";
+import { renderLayout } from "./layout.js";
+
+renderLayout();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("form-nova-senha");
+  
+  // O Supabase mapeia a flag invisível na URL para nós
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      console.log("Modo de recuperação de senha ativado. O usuário está autenticado para a troca.");
+    }
+  });
+
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      const password = document.getElementById("input-nova-senha").value;
+      const btn = form.querySelector("button");
+      const originalText = btn.textContent;
+      
+      btn.textContent = "SALVANDO...";
+      btn.disabled = true;
+
+      // Executa o bypass na segurança usando a sessão temporária amarrada no link do email
+      const { data, error } = await supabase.auth.updateUser({
+        password: password
+      });
+
+      btn.textContent = originalText;
+      btn.disabled = false;
+
+      if (error) {
+        alert(`Erro ao redefinir a senha: ${error.message}`);
+      } else {
+        alert("Sua senha foi redefinida com sucesso!");
+        window.location.href = "/minha-conta";
+      }
+    });
+  }
+});
+</file>
+
 <file path="src/js/produto.js">
 import "../css/main.css";
 import { supabase } from "./supabase.js";
@@ -652,6 +804,45 @@ document.addEventListener("DOMContentLoaded", async () => {
 </html>
 </file>
 
+<file path="src/pages/nova-senha.html">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Nova Senha | A GARIMPEIRAbr</title>
+    <!-- Essencial: Dita para o Google que ele não deve exibir essa tela na busca -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/css/main.css" />
+    <link rel="icon" type="image/png" href="/favicon.webp" />
+</head>
+<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background">
+
+    <main class="pt-[140px] pb-24 max-w-lg mx-auto px-6 md:px-8 min-h-[70vh]">
+        <div class="mb-8 border-b border-outline/10 pb-6 text-center">
+            <h1 class="font-serif text-4xl md:text-5xl text-on-background italic mb-4">Nova Senha.</h1>
+            <p class="text-sm text-on-surface-variant uppercase tracking-widest">Crie uma nova senha de acesso.</p>
+        </div>
+
+        <form id="form-nova-senha" class="flex flex-col gap-6 bg-surface-container p-8 hairline-border shadow-lg">
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-bold uppercase tracking-widest text-on-background">Sua Nova Senha</label>
+                <input id="input-nova-senha" type="password" required minlength="6" placeholder="Mínimo 6 caracteres" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-on-background transition-colors">
+            </div>
+            <button type="submit" class="mt-4 w-full bg-on-background text-on-primary text-sm uppercase tracking-[0.2em] py-4 hover:bg-primary-container transition-all duration-300 font-bold">
+                Salvar e Entrar
+            </button>
+        </form>
+    </main>
+
+    <script type="module" src="/src/js/nova-senha.js"></script>
+</body>
+</html>
+</file>
+
 <file path="src/pages/produto.html">
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -704,6 +895,189 @@ document.addEventListener("DOMContentLoaded", async () => {
     </main>
 
     <script type="module" src="/src/js/produto.js"></script>
+</body>
+</html>
+</file>
+
+<file path="src/pages/template-institucional.html">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    
+    <!-- SEO Primário -->
+    <title>A GARIMPEIRAbr | Packs de Roupas Second-Hand para Brechós</title>
+    <meta name="description" content="Packs de peças second-hand, prontas pra arara. Curadoria, lavagem e higienização feitas por nós, você foca em vender. Enviamos pra todo o Brasil." />
+    <meta name="keywords" content="brechó online, curadoria vintage, second hand, roupas vintage, moda sustentável, a garimpeira, brechó itapetininga" />
+    <meta name="author" content="A Garimpeirabr" />
+    <link rel="canonical" href="https://www.agarimpeirabr.com.br/" />
+
+    <!-- Open Graph (WhatsApp, Instagram, Facebook) -->
+    <meta property="og:title" content="A Garimpeirabr | Packs Prontos pra Arara" />
+    <meta property="og:description" content="Packs de roupas second-hand, prontos pra vender. A gente garimpa, lava e higieniza — você foca no seu brechó. Enviamos para todo o Brasil." />
+    <meta property="og:image" content="https://www.agarimpeirabr.com.br/logo.webp" />
+    <meta property="og:url" content="https://www.agarimpeirabr.com.br/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Schema.org / LocalBusiness (Otimização GEO para o Google) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "A Garimpeirabr",
+      "image": "https://www.agarimpeirabr.com.br/logo.webp",
+      "@id": "https://www.agarimpeirabr.com.br/",
+      "url": "https://www.agarimpeirabr.com.br/",
+      "telephone": "",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "",
+        "addressLocality": "Itapetininga",
+        "addressRegion": "SP",
+        "postalCode": "18200-358",
+        "addressCountry": "BR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -23.5917,
+        "longitude": -48.0531
+      },
+      "priceRange": "$$",
+      "description": "Fornecemos packs de roupas second-hand, curadas e prontas pra vender, para donas de brechó e novas empreendedoras de moda."
+    }
+    </script>
+
+    <!-- Fontes e Estilos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/src/css/main.css" />
+    <link rel="icon" type="image/webp" href="/favicon.webp" />
+    <link rel="preconnect" href="https://hqssqzmgumckbcxcqqmu.supabase.co" crossorigin>
+</head>
+<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background">
+
+    <!-- TopNavBar -->
+    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-8 py-4 bg-surface/80 backdrop-blur-xl border-b border-outline/10 transition-all duration-300">
+        <div class="md:hidden flex items-center">
+            <button class="text-on-background">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+            </button>
+        </div>
+        
+        <a href="/" class="flex-shrink-0 cursor-pointer">
+            <img src="/logo.png" alt="A Garimpeira" class="h-6 md:h-8 object-contain" />
+        </a>
+        
+        <nav id="nav-links" class="hidden md:flex gap-8 items-center">
+            <a href="/src/pages/garimpos.html" class="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant hover:text-primary transition-all duration-300">Garimpos</a>
+            <a href="/src/pages/drops.html" class="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant hover:text-primary transition-all duration-300">Drops</a>
+            <a href="/src/pages/packs.html" class="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant hover:text-primary transition-all duration-300">Packs</a>
+        </nav>
+        
+        <div class="flex items-center gap-4">
+            <div class="relative hidden lg:block mr-2">
+                <input class="bg-transparent border-b hairline-border px-0 py-1 text-xs uppercase tracking-wider focus:ring-0 focus:border-primary transition-all w-40 outline-none" placeholder="Search..." type="text" />
+            </div>
+            <button id="cart-toggle-btn" class="text-on-background hover:text-primary transition-colors relative flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span id="cart-count-badge" class="absolute -top-1 -right-2 bg-on-background text-background text-[10px] rounded-full w-4 h-4 flex items-center justify-center hidden font-bold">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Área de Conteúdo Institucional -->
+    <main class="pt-[140px] pb-24 max-w-4xl mx-auto px-6 md:px-8 min-h-[70vh]">
+        
+        <div class="mb-12 border-b border-outline/10 pb-8">
+            <h1 class="font-serif text-4xl md:text-5xl text-on-background italic mb-4">Título da Página</h1>
+            <p class="text-sm text-on-surface-variant uppercase tracking-widest">Última atualização: 31 de Julho de 2026</p>
+        </div>
+
+        <div class="prose prose-invert max-w-none text-on-background/80 space-y-6">
+            <p>
+                Insira o texto da página institucional aqui. Esta área está otimizada para leitura, com uma largura máxima que evita que as linhas fiquem muito compridas.
+            </p>
+            
+            <h2 class="text-xl font-bold text-on-background mt-8 mb-4">1. Subtítulo de Exemplo</h2>
+            <p>
+                Pode usar tags HTML padrão como parágrafos, listas e cabeçalhos para estruturar documentos longos, como Políticas de Privacidade ou Termos de Uso.
+            </p>
+            
+            <ul class="list-disc pl-6 space-y-2 mt-4">
+                <li>Ponto importante número um.</li>
+                <li>Ponto importante número dois.</li>
+                <li>Ponto importante número três.</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Minimal Checkout Drawer (Mantido para a navbar continuar funcionando) -->
+    <div id="checkout-drawer" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-background border-l hairline-border transform translate-x-full transition-transform duration-300 z-[200] flex flex-col hidden shadow-2xl">
+        <div class="p-6 border-b hairline-border flex justify-between items-center bg-background">
+            <h2 class="font-serif text-2xl font-bold">The Bag.</h2>
+            <button id="close-checkout-drawer" class="text-on-surface-variant hover:text-on-background">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+        
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+
+        <div id="payment-area" class="p-6 border-t hairline-border bg-surface-container-low flex flex-col gap-4">
+            <div class="flex justify-between items-center mb-2 text-xl font-bold">
+                <span>Total</span>
+                <span id="cart-total">R$ 0,00</span>
+            </div>
+            <div class="flex flex-col gap-3 text-xs uppercase tracking-widest text-on-background">
+                <input id="chk-nome" type="text" placeholder="Full Name" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full">
+                <input id="chk-cpf" type="text" placeholder="CPF" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full">
+                <input id="chk-cep" type="text" placeholder="Zip Code" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full">
+            </div>
+            <button id="btn-submit-order" class="w-full mt-4 bg-on-background text-on-primary text-sm uppercase tracking-[0.2em] py-4 hover:bg-primary-container transition-all duration-300 font-bold">
+                Finalize Order
+            </button>
+        </div>
+    </div>
+
+    <footer id="footer" class="w-full py-16 px-4 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 items-start bg-surface-container-lowest border-t border-outline/20">
+        <div class="col-span-1">
+            <img src="/logo.png" alt="A Garimpeira" class="h-10 object-contain mb-4" />
+            <p class="text-sm text-on-surface-variant">© 2026 A GARIMPEIRA.<br>Curadoria.</p>
+        </div>
+        
+        <div class="col-span-1 flex flex-col gap-4">
+            <h4 class="text-xs font-bold uppercase tracking-widest text-on-background">SAC & Legal</h4>
+            <div class="flex flex-col gap-3">
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/trocas.html">Políticas de Troca</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/faq.html">Perguntas Frequentes</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/privacidade.html">Política de Privacidade</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/termos.html">Termos e Condições</a>
+            </div>
+        </div>
+
+        <div class="col-span-1 flex flex-col gap-4">
+            <h4 class="text-xs font-bold uppercase tracking-widest text-on-background">Links Úteis</h4>
+            <div class="flex flex-col gap-3">
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/sobre.html">Quem Somos</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="https://instagram.com/agarimpeira" target="_blank" rel="noopener noreferrer">Nosso Instagram</a>
+                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/contato.html">Fale Conosco</a>
+            </div>
+        </div>
+
+        <div id="newsletter-anchor" class="col-span-1 flex flex-col gap-4 bg-surface-container p-6 hairline-border">
+            <h4 class="text-xs font-bold uppercase tracking-widest text-on-background">Assine Nossa Lista VIP</h4>
+            <p class="text-xs text-on-surface-variant">Receba 10% OFF na primeira compra e avisos sobre drops.</p>
+            <form class="flex flex-col gap-3 mt-2">
+                <input type="text" placeholder="Seu Nome" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-sm text-on-background">
+                <input type="email" placeholder="Seu E-mail" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-sm text-on-background">
+                <button type="button" class="mt-4 w-full bg-on-background text-background px-4 py-3 text-xs font-bold uppercase tracking-widest hover:bg-primary-container transition-colors">Quero meu desconto</button>
+            </form>
+        </div>
+    </footer>
+
+    <script type="module" src="/src/js/main.js"></script>
 </body>
 </html>
 </file>
@@ -838,6 +1212,1436 @@ document.addEventListener("DOMContentLoaded", async () => {
     <script type="module" src="/src/js/vender.js"></script>
 </body>
 </html>
+</file>
+
+<file path="supabase/functions/asaas-checkout/.npmrc">
+# Configuration for private npm package dependencies
+# For more information on using private registries with Edge Functions, see:
+# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
+</file>
+
+<file path="supabase/functions/asaas-checkout/deno.json">
+{
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
+    "@supabase/server": "npm:@supabase/server@^1"
+  }
+}
+</file>
+
+<file path="supabase/functions/atualizar-pedido/.npmrc">
+# Configuration for private npm package dependencies
+# For more information on using private registries with Edge Functions, see:
+# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
+</file>
+
+<file path="supabase/functions/atualizar-pedido/deno.json">
+{
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
+    "@supabase/server": "npm:@supabase/server@^1"
+  }
+}
+</file>
+
+<file path="supabase/functions/atualizar-pedido/index.ts">
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const { orderId, logisticsStatus, trackingCode } = await req.json();
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const resendApiKey = Deno.env.get("RESEND_API_KEY") ?? "";
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Atualiza a coluna certa de logística no banco de dados
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ logistics_status: logisticsStatus, tracking_code: trackingCode })
+      .eq('id', orderId);
+
+    if (updateError) throw updateError;
+
+    // Dispara e-mail apenas se o status logístico pedir
+    if ((logisticsStatus === 'separando' || logisticsStatus === 'enviado') && resendApiKey) {
+      const { data: orderInfo } = await supabase
+        .from("orders")
+        .select("*, customers(nome, email)")
+        .eq("id", orderId)
+        .single();
+
+      if (orderInfo?.customers?.email) {
+        let partesNome = orderInfo.customers.nome ? orderInfo.customers.nome.trim().split(/\s+/) : [];
+        let textoNome = "Garimpeira";
+
+        if (partesNome.length > 0) {
+            if (partesNome[0].length <= 2 && partesNome.length > 1) {
+                textoNome = partesNome[0] + " " + partesNome[1];
+            } else {
+                textoNome = partesNome[0];
+            }
+        }
+        
+        const nomeCliente = textoNome.split(" ").map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(" ");
+        
+        let emailSubject = "";
+        let emailHtml = "";
+
+        if (logisticsStatus === 'separando') {
+            emailSubject = "Seu pedido está sendo preparado! 📦";
+            emailHtml = `
+              <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; text-align: center; border: 1px solid #eaeaea;">
+                <h2 style="font-size: 20px; font-weight: bold; color: #1a1a1a;">Estamos separando o seu garimpo, ${nomeCliente}!</h2>
+                <p style="font-size: 16px; line-height: 1.6; color: #333333; margin-top: 20px;">
+                  O seu pagamento foi confirmado e a nossa equipe já está separando e embalando as suas peças com muito carinho.
+                </p>
+                <p style="font-size: 16px; line-height: 1.6; color: #666666;">
+                  Assim que o pacote for despachado, você receberá outro e-mail com o código de rastreio. Fica de olho na sua caixa de entrada!
+                </p>
+              </div>
+            `;
+        } else if (logisticsStatus === 'enviado' && trackingCode) {
+            emailSubject = "Seu pedido foi enviado! 🚚";
+            emailHtml = `
+              <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; text-align: center; border: 1px solid #eaeaea;">
+                <h2 style="font-size: 20px; font-weight: bold; color: #1a1a1a;">Seu garimpo está a caminho, ${nomeCliente}!</h2>
+                <p style="font-size: 16px; line-height: 1.6; color: #333333; margin-top: 20px;">
+                  O seu pedido já foi postado e está a caminho da sua casa.
+                </p>
+                <p style="font-size: 16px; color: #666666;">Acompanhe a entrega usando o código de rastreio abaixo:</p>
+                <div style="background-color: #f4f4f4; padding: 20px; font-size: 18px; font-weight: bold; letter-spacing: 2px; margin: 20px 0; color: #1a1a1a;">
+                  ${trackingCode}
+                </div>
+                <p style="font-size: 14px; color: #999999;">Você pode rastrear direto no site dos Correios ou da transportadora escolhida.</p>
+              </div>
+            `;
+        }
+
+        if (emailSubject && emailHtml) {
+            await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${resendApiKey}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                from: 'A Garimpeirabr <contato@agarimpeirabr.com.br>',
+                reply_to: 'contato.agarimpeirabr@gmail.com',
+                to: orderInfo.customers.email,
+                subject: emailSubject,
+                html: emailHtml
+              })
+            });
+        }
+      }
+    }
+
+    return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 });
+  } catch (error) {
+    return new Response(JSON.stringify({ success: false, error: error.message }), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 });
+  }
+});
+</file>
+
+<file path="supabase/functions/calcular-frete/.npmrc">
+# Configuration for private npm package dependencies
+# For more information on using private registries with Edge Functions, see:
+# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
+</file>
+
+<file path="supabase/functions/calcular-frete/deno.json">
+{
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
+    "@supabase/server": "npm:@supabase/server@^1"
+  }
+}
+</file>
+
+<file path="supabase/functions/disparo-newsletter/.npmrc">
+# Configuration for private npm package dependencies
+# For more information on using private registries with Edge Functions, see:
+# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
+</file>
+
+<file path="supabase/functions/disparo-newsletter/deno.json">
+{
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
+    "@supabase/server": "npm:@supabase/server@^1"
+  }
+}
+</file>
+
+<file path="supabase/functions/disparo-newsletter/index.ts">
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const resendApiKey = Deno.env.get("RESEND_API_KEY") ?? "";
+    
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) throw new Error("Token de autenticação não enviado.");
+    const token = authHeader.replace('Bearer ', '');
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey); 
+
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    if (authError || !user) throw new Error("Sessão inválida ou expirada.");
+
+    const { data: userData } = await supabaseAdmin.from('customers').select('is_admin').eq('id', user.id).single();
+    if (!userData?.is_admin) throw new Error("Você não tem privilégios de administrador.");
+
+    const { data: contatos, error: contatosError } = await supabaseAdmin
+        .from('vw_mala_direta')
+        .select('email, nome');
+        
+    if (contatosError || !contatos || contatos.length === 0) {
+        throw new Error("Nenhum contato encontrado na Mala Direta.");
+    }
+
+    const BATCH_SIZE = 100;
+    let emailsEnviados = 0;
+
+    for (let i = 0; i < contatos.length; i += BATCH_SIZE) {
+        const batch = contatos.slice(i, i + BATCH_SIZE).map(contato => {
+            
+            // Nova Lógica de Tratamento de Nomes Curtos
+            let partesNome = contato.nome ? contato.nome.trim().split(/\s+/) : [];
+            let textoNome = "Garimpeira";
+
+            if (partesNome.length > 0) {
+                // Se o primeiro nome tiver 1 ou 2 letras (ex: "A", "M.", "Zé") e tiver sobrenome, pega os dois.
+                if (partesNome[0].length <= 2 && partesNome.length > 1) {
+                    textoNome = partesNome[0] + " " + partesNome[1];
+                } else {
+                    textoNome = partesNome[0];
+                }
+            }
+
+            // Capitaliza a(s) palavra(s) do nome escolhido
+            const nomeFormatado = textoNome
+                .split(" ")
+                .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase())
+                .join(" ");
+
+            return {
+                from: 'A Garimpeirabr <contato@agarimpeirabr.com.br>',
+                to: contato.email,
+                subject: 'Acabou de chegar! Novas peças no acervo 👀',
+                html: `
+                    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #fcfcfc; color: #1a1a1a; border: 1px solid #eaeaea;">
+                        <div style="padding: 40px 32px; text-align: center; border-bottom: 1px solid #eaeaea; background-color: #ffffff;">
+                            <img src="https://www.agarimpeirabr.com.br/logo.png" alt="A Garimpeirabr" style="width: 200px; max-width: 100%; height: auto; margin: 0 auto; display: block;" />
+                        </div>
+                        <div style="padding: 48px 32px; background-color: #fcfcfc; text-align: center;">
+                            <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px; color: #1a1a1a;">
+                                Oi, ${nomeFormatado}!
+                            </h2>
+                            <p style="font-size: 16px; margin-top: 0; margin-bottom: 32px; color: #666666;">
+                                acabamos de liberar novas peças exclusivas no nosso acervo.
+                            </p>
+                            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 40px; color: #333333;">
+                                corra lá, escolha as suas favoritas e monte seu pack personalizado de 5 a 30 peças. garimpo bom voa, então não perde tempo.
+                            </p>
+                            <a href="https://www.agarimpeirabr.com.br/garimpos" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; text-decoration: none; padding: 16px 32px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
+                                GARIMPAR AGORA
+                            </a>
+                        </div>
+                    </div>
+                `
+            };
+        });
+
+        const res = await fetch('https://api.resend.com/emails/batch', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${resendApiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(batch)
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error("Erro da API Resend: " + errText);
+        } else {
+            emailsEnviados += batch.length;
+        }
+    }
+
+    return new Response(JSON.stringify({ success: true, count: emailsEnviados }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
+
+  } catch (error) {
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    });
+  }
+});
+</file>
+
+<file path="supabase/functions/enviar-cupom-newsletter/.npmrc">
+# Configuration for private npm package dependencies
+# For more information on using private registries with Edge Functions, see:
+# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
+</file>
+
+<file path="supabase/functions/enviar-cupom-newsletter/deno.json">
+{
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
+    "@supabase/server": "npm:@supabase/server@^1"
+  }
+}
+</file>
+
+<file path="supabase/functions/enviar-cupom-newsletter/index.ts">
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
+
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+function gerarCupom() {
+  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let resultado = '';
+  for (let i = 0; i < 5; i++) {
+    resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+  }
+  return `AGBR-${resultado}`;
+}
+
+serve(async (req) => {
+  try {
+    const payload = await req.json()
+    const record = payload.record 
+
+    console.log("1. Novo registro recebido. E-mail:", record?.email);
+
+    if (!record || !record.email) {
+      throw new Error("Sem registro ou e-mail na requisição.");
+    }
+
+    const { nome, email } = record;
+    const cupomExclusivo = gerarCupom();
+
+    console.log("2. Atualizando banco com o cupom:", cupomExclusivo);
+
+    const { error: dbError } = await supabase
+      .from('newsletter')
+      .update({ cupom: cupomExclusivo })
+      .eq('email', email);
+
+    if (dbError) {
+      console.error("ERRO NO SUPABASE:", dbError);
+      throw dbError;
+    }
+
+    console.log("3. Disparando para o Resend...");
+
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'A Garimpeirabr <contato@agarimpeirabr.com.br>',
+        reply_to: 'contato.agarimpeirabr@gmail.com',
+        to: email,
+        subject: 'Seu garimpo tá prestes a começar 🧡',
+        html: `
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #fcfcfc; color: #1a1a1a; border: 1px solid #eaeaea;">
+            
+            <div style="padding: 40px 32px; text-align: center; border-bottom: 1px solid #eaeaea; background-color: #ffffff;">
+              <img src="https://www.agarimpeirabr.com.br/logo.png" alt="A Garimpeirabr" style="width: 200px; max-width: 100%; height: auto; margin: 0 auto; display: block;" />
+            </div>
+
+            <div style="padding: 48px 32px; background-color: #fcfcfc;">
+              <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px; color: #1a1a1a;">
+                bem-vinda, ${nome}!
+              </h2>
+              <p style="font-size: 16px; margin-top: 0; margin-bottom: 32px; color: #666666;">
+                seu garimpo tá prestes a começar 🧡
+              </p>
+
+              <p style="font-size: 15px; line-height: 1.6; margin-bottom: 24px; color: #333333;">
+                a gente garimpa, lava, higieniza e revitaliza roupas second-hand e monta em packs prontos pra vender. você foca no seu brechó e a gente cuida do trabalho pesado.
+              </p>
+              
+              <p style="font-size: 15px; line-height: 1.6; margin-bottom: 32px; color: #333333;">
+                como prometido, aqui está seu desconto de estreia:
+              </p>
+
+              <div style="background-color: #1a1a1a; padding: 40px 24px; text-align: center; margin: 32px 0;">
+                <p style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; margin: 0 0 16px 0; color: #a0a0a0;">
+                  CÓDIGO EXCLUSIVO
+                </p>
+                <div style="font-family: 'Georgia', serif; font-size: 32px; font-weight: normal; letter-spacing: 6px; color: #ffffff; margin-bottom: 16px;">
+                  ${cupomExclusivo}
+                </div>
+                <p style="font-size: 13px; margin: 0; color: #e0e0e0;">
+                  10% off no seu primeiro pack
+                </p>
+              </div>
+
+              <p style="font-size: 15px; line-height: 1.6; margin-bottom: 40px; color: #666666;">
+                é só colar esse código no checkout na hora de fechar o pedido. um pack bom não espera 👀
+              </p>
+
+              <div style="text-align: center; margin-top: 32px; margin-bottom: 20px;">
+                <a href="https://www.agarimpeirabr.com.br/src/pages/packs.html" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; text-decoration: none; padding: 16px 32px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
+                  VER PACKS DISPONÍVEIS
+                </a>
+              </div>
+            </div>
+
+            <div style="padding: 40px 32px; background-color: #ffffff; border-top: 1px solid #eaeaea; text-align: center;">
+              <img src="https://www.agarimpeirabr.com.br/icone.png" alt="Ícone A Garimpeira" style="width: 48px; height: auto; margin-bottom: 16px; display: inline-block;" />
+              <p style="font-size: 12px; margin: 0 0 8px 0; color: #666666;">
+                © 2026 A Garimpeira. Packs de roupas second-hand.
+              </p>
+              <p style="font-size: 12px; margin: 0; color: #999999;">
+                Itapetininga, SP
+              </p>
+            </div>
+            
+          </div>
+        `
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("4. RESEND RECUSOU O E-MAIL:", data);
+      throw new Error(JSON.stringify(data));
+    }
+
+    console.log("5. E-mail entregue com sucesso no Resend:", data);
+    return new Response(JSON.stringify({ success: true, cupom: cupomExclusivo }), { status: 200 });
+
+  } catch (error) {
+    console.error("ERRO FATAL NA FUNÇÃO:", error.message);
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  }
+})
+</file>
+
+<file path="supabase/functions/mp-checkout/.npmrc">
+# Configuration for private npm package dependencies
+# For more information on using private registries with Edge Functions, see:
+# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
+</file>
+
+<file path="supabase/functions/mp-checkout/deno.json">
+{
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
+    "@supabase/server": "npm:@supabase/server@^1"
+  }
+}
+</file>
+
+<file path="supabase/functions/mp-checkout/index.ts">
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const mpAccessToken = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const body = await req.json();
+    const { customer, address, items, freight, coupon, discount, paymentMethod, total } = body;
+
+    const orderId = crypto.randomUUID();
+
+    const preferenceData: any = {
+      items: items.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        description: item.is_custom_pack ? "Pack Customizado de Peças" : "Garimpo",
+        picture_url: item.image,
+        category_id: "fashion",
+        quantity: item.quantity || 1,
+        currency_id: "BRL",
+        unit_price: item.price
+      })),
+      payer: {
+        email: customer.email,
+        name: customer.name.split(" ")[0],
+        surname: customer.name.split(" ").slice(1).join(" ") || "",
+        identification: {
+          type: "CPF",
+          number: customer.cpf.replace(/\D/g, '')
+        }
+      },
+      back_urls: {
+        success: "https://www.agarimpeirabr.com.br/packs?status=approved",
+        failure: "https://www.agarimpeirabr.com.br/packs?status=failure",
+        pending: "https://www.agarimpeirabr.com.br/packs?status=pending"
+      },
+      auto_return: "approved",
+      external_reference: orderId,
+    };
+
+    // Frete com a descrição correta de embalagem inclusa
+    if (freight && freight.price > 0) {
+      preferenceData.items.push({
+        id: "frete",
+        title: `Logística e Embalagem: ${freight.name}`,
+        description: "Custo de envio e caixa",
+        quantity: 1,
+        currency_id: "BRL",
+        unit_price: freight.price
+      });
+    }
+
+    if (discount && discount > 0) {
+      preferenceData.items.push({
+        id: "desconto",
+        title: `Desconto (Cupom: ${coupon || 'Aplicado'})`,
+        description: "Desconto promocional",
+        quantity: 1,
+        currency_id: "BRL",
+        unit_price: -Math.abs(discount)
+      });
+    }
+
+    const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${mpAccessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(preferenceData)
+    });
+
+    if (!mpResponse.ok) {
+      const err = await mpResponse.text();
+      console.error("Erro no Mercado Pago:", err);
+      throw new Error("Falha ao gerar o link de pagamento da instituição financeira.");
+    }
+
+    const mpData = await mpResponse.json();
+
+    const { error: orderError } = await supabase.from('orders').insert({
+      id: orderId,
+      customer_id: customer.id,
+      total_amount: total,
+      status: 'pending'
+    });
+
+    if (orderError) throw orderError;
+
+    const orderItemsToInsert = items.map((item: any) => ({
+      order_id: orderId,
+      product_id: item.id,
+      price: item.price,
+      quantity: item.quantity || 1,
+      custom_items: item.custom_items || null 
+    }));
+
+    const { error: itemsError } = await supabase.from('order_items').insert(orderItemsToInsert);
+
+    if (itemsError) throw itemsError;
+
+    return new Response(JSON.stringify({
+      success: true,
+      initPoint: mpData.init_point
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
+
+  } catch (error: any) {
+    console.error("Erro Crítico no Checkout:", error);
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    });
+  }
+});
+</file>
+
+<file path="supabase/functions/mp-webhook/.npmrc">
+# Configuration for private npm package dependencies
+# For more information on using private registries with Edge Functions, see:
+# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
+</file>
+
+<file path="supabase/functions/mp-webhook/deno.json">
+{
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
+    "@supabase/server": "npm:@supabase/server@^1"
+  }
+}
+</file>
+
+<file path="supabase/functions/mp-webhook/index.ts">
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+
+serve(async (req) => {
+
+  console.log("🔔 ALERTA: WEBHOOK BATEU NA PORTA!", req.url);
+
+  try {
+    const url = new URL(req.url);
+    const body = await req.json().catch(() => ({}));
+    console.log("📦 DADOS RECEBIDOS:", body);
+
+    const paymentId = url.searchParams.get("data.id") || body?.data?.id;
+    const eventType = url.searchParams.get("type") || body?.type || body?.action;
+
+    if (paymentId && eventType?.includes("payment")) {
+      const mpAccessToken = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
+      const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+      const resendApiKey = Deno.env.get("RESEND_API_KEY") ?? "";
+
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+        headers: { "Authorization": `Bearer ${mpAccessToken}` }
+      });
+      const paymentData = await mpResponse.json();
+
+      const orderId = paymentData.external_reference; 
+      const status = paymentData.status; 
+
+      if (orderId) {
+        // Atualiza o status do pedido
+        await supabase.from("orders").update({ status: status }).eq("id", orderId);
+
+        // Busca os itens do pedido (Puxando a nova coluna custom_items)
+        const { data: orderItems } = await supabase
+          .from("order_items")
+          .select("product_id, custom_items")
+          .eq("order_id", orderId);
+
+        // 1. PAGAMENTO APROVADO - BAIXA NO ESTOQUE E DISPARA E-MAILS
+        if (status === "approved") {
+          
+          if (orderItems) {
+            for (const item of orderItems) {
+              // Verifica se é o "Monte seu Pack" (possui o array de peças)
+              if (item.custom_items && Array.isArray(item.custom_items) && item.custom_items.length > 0) {
+                // Dá baixa nas 5 peças simultaneamente
+                await supabase.from("produtos")
+                  .update({ status: "vendido", is_active: false })
+                  .in("id", item.custom_items);
+              } else {
+                // Tratamento normal para Peça Solta ou Pack Fechado
+                await supabase.from("produtos").update({ status: "vendido", is_active: false }).eq("id", item.product_id);
+                await supabase.from("packs").update({ is_active: false }).eq("id", item.product_id);
+
+                const { data: packData } = await supabase.from("packs").select("nome").eq("id", item.product_id).single();
+
+                if (packData && packData.nome) {
+                  await supabase.from("produtos")
+                    .update({ status: "vendido", is_active: false })
+                    .ilike("pack", packData.nome);
+                }
+              }
+            }
+          }
+
+          if (resendApiKey) {
+            const { data: orderInfo } = await supabase
+              .from("orders")
+              .select("*, customers(nome, email)")
+              .eq("id", orderId)
+              .single();
+
+            if (orderInfo && orderInfo.customers && orderInfo.customers.email) {
+              const nomeCliente = orderInfo.customers.nome.split(" ")[0];
+              const emailCliente = orderInfo.customers.email;
+              const valorTotal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(orderInfo.total_amount);
+
+              // Disparo via Resend para a CLIENTE
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${resendApiKey}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  from: 'A Garimpeirabr <contato@agarimpeirabr.com.br>',
+                  reply_to: 'contato.agarimpeirabr@gmail.com',
+                  to: emailCliente,
+                  subject: `Oba! Pagamento Aprovado 🧡`,
+                  html: `
+                    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #fcfcfc; color: #1a1a1a; border: 1px solid #eaeaea;">
+                      <div style="padding: 40px 32px; text-align: center; border-bottom: 1px solid #eaeaea; background-color: #ffffff;">
+                        <img src="https://www.agarimpeirabr.com.br/logo.png" alt="A Garimpeirabr" style="width: 200px; max-width: 100%; height: auto; margin: 0 auto; display: block;" />
+                      </div>
+                      <div style="padding: 48px 32px; background-color: #fcfcfc;">
+                        <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px; color: #1a1a1a;">
+                          pagamento confirmado, ${nomeCliente.toLowerCase()}!
+                        </h2>
+                        <p style="font-size: 16px; margin-top: 0; margin-bottom: 32px; color: #666666;">
+                          seu garimpo agora é oficialmente seu 🧡
+                        </p>
+                        <p style="font-size: 15px; line-height: 1.6; margin-bottom: 24px; color: #333333;">
+                          recebemos o seu pagamento no valor de <strong>${valorTotal}</strong> e o seu pedido já está na nossa fila de separação.
+                        </p>
+                        <p style="font-size: 15px; line-height: 1.6; margin-bottom: 40px; color: #666666;">
+                          assim que ele for despachado, você receberá um novo aviso. relaxa e deixa o trabalho pesado com a gente.
+                        </p>
+                        <div style="text-align: center; margin-top: 32px; margin-bottom: 20px;">
+                          <a href="https://www.agarimpeirabr.com.br/src/pages/minha-conta.html" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; text-decoration: none; padding: 16px 32px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
+                            ACOMPANHAR PEDIDO
+                          </a>
+                        </div>
+                      </div>
+                      <div style="padding: 40px 32px; background-color: #ffffff; border-top: 1px solid #eaeaea; text-align: center;">
+                        <img src="https://www.agarimpeirabr.com.br/icone.png" alt="Ícone A Garimpeira" style="width: 48px; height: auto; margin-bottom: 16px; display: inline-block;" />
+                        <p style="font-size: 12px; margin: 0 0 8px 0; color: #666666;">
+                          © 2026 A Garimpeira. Packs de roupas second-hand.
+                        </p>
+                        <p style="font-size: 12px; margin: 0; color: #999999;">
+                          Itapetininga, SP
+                        </p>
+                      </div>
+                    </div>
+                  `
+                })
+              });
+
+              // Disparo de aviso interno para o LOJISTA
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${resendApiKey}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  from: 'Sistema A Garimpeira <contato@agarimpeirabr.com.br>',
+                  to: [
+                    'contato.agarimpeirabr@gmail.com',
+                    'diegolopes.dev9@gmail.com',
+                    'aimee.pavanelli@gmail.com'
+                  ],
+                  subject: `💰 NOVA VENDA: Pedido #${orderId}`,
+                  html: `
+                    <div style="font-family: sans-serif; padding: 20px;">
+                      <h2>Aê! Venda confirmada.</h2>
+                      <p>Você acabou de receber um pagamento de <strong>${valorTotal}</strong>.</p>
+                      <p><strong>Cliente:</strong> ${nomeCliente} (${emailCliente})</p>
+                      <p>Acesse o painel executivo para ver os detalhes e separar o pack.</p>
+                    </div>
+                  `
+                })
+              });
+            }
+          }
+        }
+
+        // 2. PAGAMENTO RECUSADO/CANCELADO - DEVOLVE PARA A VITRINE
+        if (status === "rejected" || status === "cancelled" || status === "refunded") {
+          
+          if (orderItems) {
+            for (const item of orderItems) {
+              // Devolve as 5 peças do "Monte seu Pack" para o acervo
+              if (item.custom_items && Array.isArray(item.custom_items) && item.custom_items.length > 0) {
+                await supabase.from("produtos")
+                  .update({ status: "disponivel", is_active: true })
+                  .in("id", item.custom_items);
+              } else {
+                // Devolve as peças normais
+                await supabase.from("produtos").update({ status: "disponivel", is_active: true }).eq("id", item.product_id);
+                await supabase.from("packs").update({ is_active: true }).eq("id", item.product_id);
+
+                const { data: packData } = await supabase.from("packs").select("nome").eq("id", item.product_id).single();
+
+                if (packData && packData.nome) {
+                  await supabase.from("produtos")
+                    .update({ status: "disponivel", is_active: true })
+                    .ilike("pack", packData.nome);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return new Response("Webhook processado", { status: 200 });
+  } catch (error) {
+    console.error("Erro no Webhook:", error);
+    return new Response("Erro interno", { status: 500 });
+  }
+});
+</file>
+
+<file path="supabase/.gitignore">
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local
+</file>
+
+<file path="supabase/config.toml">
+# For detailed configuration reference documentation, visit:
+# https://supabase.com/docs/guides/local-development/cli/config
+# A string used to distinguish different Supabase projects on the same host. Defaults to the
+# working directory name when running `supabase init`.
+project_id = "workspace"
+
+[api]
+enabled = true
+# Port to use for the API URL.
+port = 54321
+# Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
+# endpoints. `public` and `graphql_public` schemas are included by default.
+schemas = ["public", "graphql_public"]
+# Extra schemas to add to the search_path of every request.
+extra_search_path = ["public", "extensions"]
+# The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
+# for accidental or malicious requests.
+max_rows = 1000
+# Controls whether new tables, views, sequences and functions created in the `public` schema by
+# `postgres` are reachable through the Data API roles (`anon`, `authenticated`, `service_role`)
+# without explicit GRANTs. Leave unset today to preserve local behaviour. The implicit default
+# flips to `false` on 2026-05-30 to match the new cloud default, and the field is removed in
+# 2026-10-30 once the always-revoked behaviour is permanent. Set to `false` to opt in early.
+# auto_expose_new_tables = false
+
+[api.tls]
+# Enable HTTPS endpoints locally using a self-signed certificate.
+enabled = false
+# Paths to self-signed certificate pair.
+# cert_path = "../certs/my-cert.pem"
+# key_path = "../certs/my-key.pem"
+
+[db]
+# Port to use for the local database URL.
+port = 54322
+# Port used by db diff command to initialize the shadow database.
+shadow_port = 54320
+# Maximum amount of time to wait for health check when starting the local database.
+health_timeout = "2m"
+# The database major version to use. This has to be the same as your remote database's. Run `SHOW
+# server_version;` on the remote database to check.
+major_version = 17
+
+[db.pooler]
+enabled = false
+# Port to use for the local connection pooler.
+port = 54329
+# Specifies when a server connection can be reused by other clients.
+# Configure one of the supported pooler modes: `transaction`, `session`.
+pool_mode = "transaction"
+# How many server connections to allow per user/database pair.
+default_pool_size = 20
+# Maximum number of client connections allowed.
+max_client_conn = 100
+
+# [db.vault]
+# secret_key = "env(SECRET_VALUE)"
+
+[db.migrations]
+# If disabled, migrations will be skipped during a db push or reset.
+enabled = true
+# Specifies an ordered list of schema files that describe your database.
+# Supports glob patterns relative to supabase directory: "./schemas/*.sql"
+schema_paths = []
+
+[db.seed]
+# If enabled, seeds the database after migrations during a db reset.
+enabled = true
+# Specifies an ordered list of seed files to load during db reset.
+# Supports glob patterns relative to supabase directory: "./seeds/*.sql"
+sql_paths = ["./seed.sql"]
+
+[db.network_restrictions]
+# Enable management of network restrictions.
+enabled = false
+# List of IPv4 CIDR blocks allowed to connect to the database.
+# Defaults to allow all IPv4 connections. Set empty array to block all IPs.
+allowed_cidrs = ["0.0.0.0/0"]
+# List of IPv6 CIDR blocks allowed to connect to the database.
+# Defaults to allow all IPv6 connections. Set empty array to block all IPs.
+allowed_cidrs_v6 = ["::/0"]
+
+# Uncomment to reject non-secure connections to the database.
+# [db.ssl_enforcement]
+# enabled = true
+
+[realtime]
+enabled = true
+# Bind realtime via either IPv4 or IPv6. (default: IPv4)
+# ip_version = "IPv6"
+# The maximum length in bytes of HTTP request headers. (default: 4096)
+# max_header_length = 4096
+
+[studio]
+enabled = true
+# Port to use for Supabase Studio.
+port = 54323
+# External URL of the API server that frontend connects to.
+api_url = "http://127.0.0.1"
+# OpenAI API Key to use for Supabase AI in the Supabase Studio.
+openai_api_key = "env(OPENAI_API_KEY)"
+
+# Email testing server. Emails sent with the local dev setup are not actually sent - rather, they
+# are monitored, and you can view the emails that would have been sent from the web interface.
+[inbucket]
+enabled = true
+# Port to use for the email testing server web interface.
+port = 54324
+# Uncomment to expose additional ports for testing user applications that send emails.
+# smtp_port = 54325
+# pop3_port = 54326
+# admin_email = "admin@email.com"
+# sender_name = "Admin"
+
+[storage]
+enabled = true
+# The maximum file size allowed (e.g. "5MB", "500KB").
+file_size_limit = "50MiB"
+
+# Uncomment to configure local storage buckets
+# [storage.buckets.images]
+# public = false
+# file_size_limit = "50MiB"
+# allowed_mime_types = ["image/png", "image/jpeg"]
+# objects_path = "./images"
+
+# Allow connections via S3 compatible clients
+[storage.s3_protocol]
+enabled = true
+
+# Image transformation API is available to Supabase Pro plan.
+# [storage.image_transformation]
+# enabled = true
+
+# Store analytical data in S3 for running ETL jobs over Iceberg Catalog
+# This feature is only available on the hosted platform.
+[storage.analytics]
+enabled = false
+max_namespaces = 5
+max_tables = 10
+max_catalogs = 2
+
+# Analytics Buckets is available to Supabase Pro plan.
+# [storage.analytics.buckets.my-warehouse]
+
+# Store vector embeddings in S3 for large and durable datasets
+[storage.vector]
+enabled = false
+max_buckets = 10
+max_indexes = 5
+
+# Vector Buckets is available to Supabase Pro plan.
+# [storage.vector.buckets.documents-openai]
+
+[auth]
+enabled = true
+# The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
+# in emails.
+site_url = "http://127.0.0.1:3000"
+# The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
+# external_url = ""
+# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+# How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
+jwt_expiry = 3600
+# JWT issuer URL. If not set, defaults to auth.external_url.
+# jwt_issuer = ""
+# Path to JWT signing key. DO NOT commit your signing keys file to git.
+# signing_keys_path = "./signing_keys.json"
+# If disabled, the refresh token will never expire.
+enable_refresh_token_rotation = true
+# Allows refresh tokens to be reused after expiry, up to the specified interval in seconds.
+# Requires enable_refresh_token_rotation = true.
+refresh_token_reuse_interval = 10
+# Allow/disallow new user signups to your project.
+enable_signup = true
+# Allow/disallow anonymous sign-ins to your project.
+enable_anonymous_sign_ins = false
+# Allow/disallow testing manual linking of accounts
+enable_manual_linking = false
+# Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
+minimum_password_length = 6
+# Passwords that do not meet the following requirements will be rejected as weak. Supported values
+# are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
+password_requirements = ""
+
+# Configure passkey sign-ins.
+# [auth.passkey]
+# enabled = false
+
+# Configure WebAuthn relying party settings (required when passkey is enabled).
+# [auth.webauthn]
+# rp_display_name = "Supabase"
+# rp_id = "localhost"
+# rp_origins = ["http://127.0.0.1:3000"]
+
+[auth.rate_limit]
+# Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
+email_sent = 2
+# Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
+sms_sent = 30
+# Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
+anonymous_users = 30
+# Number of sessions that can be refreshed in a 5 minute interval per IP address.
+token_refresh = 150
+# Number of sign up and sign-in requests that can be made in a 5 minute interval per IP address (excludes anonymous users).
+sign_in_sign_ups = 30
+# Number of OTP / Magic link verifications that can be made in a 5 minute interval per IP address.
+token_verifications = 30
+# Number of Web3 logins that can be made in a 5 minute interval per IP address.
+web3 = 30
+
+# Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
+# [auth.captcha]
+# enabled = true
+# provider = "hcaptcha"
+# secret = ""
+
+[auth.email]
+# Allow/disallow new user signups via email to your project.
+enable_signup = true
+# If enabled, a user will be required to confirm any email change on both the old, and new email
+# addresses. If disabled, only the new email is required to confirm.
+double_confirm_changes = true
+# If enabled, users need to confirm their email address before signing in.
+enable_confirmations = false
+# If enabled, users will need to reauthenticate or have logged in recently to change their password.
+secure_password_change = false
+# Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
+max_frequency = "1s"
+# Number of characters used in the email OTP.
+otp_length = 6
+# Number of seconds before the email OTP expires (defaults to 1 hour).
+otp_expiry = 3600
+
+# Use a production-ready SMTP server
+# [auth.email.smtp]
+# enabled = true
+# host = "smtp.sendgrid.net"
+# port = 587
+# user = "apikey"
+# pass = "env(SENDGRID_API_KEY)"
+# admin_email = "admin@email.com"
+# sender_name = "Admin"
+
+# Uncomment to customize email template
+# [auth.email.template.invite]
+# subject = "You have been invited"
+# content_path = "./supabase/templates/invite.html"
+
+# Uncomment to customize notification email template
+# [auth.email.notification.password_changed]
+# enabled = true
+# subject = "Your password has been changed"
+# content_path = "./templates/password_changed_notification.html"
+
+[auth.sms]
+# Allow/disallow new user signups via SMS to your project.
+enable_signup = false
+# If enabled, users need to confirm their phone number before signing in.
+enable_confirmations = false
+# Template for sending OTP to users
+template = "Your code is {{ .Code }}"
+# Controls the minimum amount of time that must pass before sending another sms otp.
+max_frequency = "5s"
+
+# Use pre-defined map of phone number to OTP for testing.
+# [auth.sms.test_otp]
+# 4152127777 = "123456"
+
+# Configure logged in session timeouts.
+# [auth.sessions]
+# Force log out after the specified duration.
+# timebox = "24h"
+# Force log out if the user has been inactive longer than the specified duration.
+# inactivity_timeout = "8h"
+
+# This hook runs before a new user is created and allows developers to reject the request based on the incoming user object.
+# [auth.hook.before_user_created]
+# enabled = true
+# uri = "pg-functions://postgres/auth/before-user-created-hook"
+
+# This hook runs before a token is issued and allows you to add additional claims based on the authentication method used.
+# [auth.hook.custom_access_token]
+# enabled = true
+# uri = "pg-functions://<database>/<schema>/<hook_name>"
+
+# Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
+[auth.sms.twilio]
+enabled = false
+account_sid = ""
+message_service_sid = ""
+# DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
+auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+
+# Multi-factor-authentication is available to Supabase Pro plan.
+[auth.mfa]
+# Control how many MFA factors can be enrolled at once per user.
+max_enrolled_factors = 10
+
+# Control MFA via App Authenticator (TOTP)
+[auth.mfa.totp]
+enroll_enabled = false
+verify_enabled = false
+
+# Configure MFA via Phone Messaging
+[auth.mfa.phone]
+enroll_enabled = false
+verify_enabled = false
+otp_length = 6
+template = "Your code is {{ .Code }}"
+max_frequency = "5s"
+
+# Configure MFA via WebAuthn
+# [auth.mfa.web_authn]
+# enroll_enabled = true
+# verify_enabled = true
+
+# Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
+# `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
+# `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
+[auth.external.apple]
+enabled = false
+client_id = ""
+# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
+secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+# Overrides the default auth callback URL derived from auth.external_url.
+redirect_uri = ""
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+# If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
+skip_nonce_check = false
+# If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
+email_optional = false
+
+# Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.
+# You can configure "web3" rate limit in the [auth.rate_limit] section and set up [auth.captcha] if self-hosting.
+[auth.web3.solana]
+enabled = false
+
+# Use Firebase Auth as a third-party provider alongside Supabase Auth.
+[auth.third_party.firebase]
+enabled = false
+# project_id = "my-firebase-project"
+
+# Use Auth0 as a third-party provider alongside Supabase Auth.
+[auth.third_party.auth0]
+enabled = false
+# tenant = "my-auth0-tenant"
+# tenant_region = "us"
+
+# Use AWS Cognito (Amplify) as a third-party provider alongside Supabase Auth.
+[auth.third_party.aws_cognito]
+enabled = false
+# user_pool_id = "my-user-pool-id"
+# user_pool_region = "us-east-1"
+
+# Use Clerk as a third-party provider alongside Supabase Auth.
+[auth.third_party.clerk]
+enabled = false
+# Obtain from https://clerk.com/setup/supabase
+# domain = "example.clerk.accounts.dev"
+
+# OAuth server configuration
+[auth.oauth_server]
+# Enable OAuth server functionality
+enabled = false
+# Path for OAuth consent flow UI
+authorization_url_path = "/oauth/consent"
+# Allow dynamic client registration
+allow_dynamic_registration = false
+
+[edge_runtime]
+enabled = true
+# Supported request policies: `oneshot`, `per_worker`.
+# `per_worker` (default) — enables hot reload during local development.
+# `oneshot` — fallback mode if hot reload causes issues (e.g. in large repos or with symlinks).
+policy = "per_worker"
+# Port to attach the Chrome inspector for debugging edge functions.
+inspector_port = 8083
+# The Deno major version to use.
+deno_version = 2
+
+# [edge_runtime.secrets]
+# secret_key = "env(SECRET_VALUE)"
+
+[analytics]
+enabled = true
+port = 54327
+# Configure one of the supported backends: `postgres`, `bigquery`.
+backend = "postgres"
+
+# Experimental features may be deprecated any time
+[experimental]
+# Configures Postgres storage engine to use OrioleDB (S3)
+orioledb_version = ""
+# Configures S3 bucket URL, eg. <bucket_name>.s3-<region>.amazonaws.com
+s3_host = "env(S3_HOST)"
+# Configures S3 bucket region, eg. us-east-1
+s3_region = "env(S3_REGION)"
+# Configures AWS_ACCESS_KEY_ID for S3 bucket
+s3_access_key = "env(S3_ACCESS_KEY)"
+# Configures AWS_SECRET_ACCESS_KEY for S3 bucket
+s3_secret_key = "env(S3_SECRET_KEY)"
+
+# [experimental.pgdelta]
+# When enabled, pg-delta becomes the active engine for supported schema flows.
+# enabled = false
+# Directory under `supabase/` where declarative files are written.
+# declarative_schema_path = "./database"
+# JSON string passed through to pg-delta SQL formatting.
+# format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+[functions.asaas-checkout]
+enabled = true
+verify_jwt = false
+import_map = "./functions/asaas-checkout/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/asaas-checkout/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/asaas-checkout/*.html" ]
+
+[functions.mp-checkout]
+enabled = true
+verify_jwt = false
+import_map = "./functions/mp-checkout/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/mp-checkout/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/mp-checkout/*.html" ]
+
+[functions.mp-webhook]
+enabled = true
+verify_jwt = false
+import_map = "./functions/mp-webhook/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/mp-webhook/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/mp-webhook/*.html" ]
+
+[functions.calcular-frete]
+enabled = true
+verify_jwt = false
+import_map = "./functions/calcular-frete/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/calcular-frete/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/calcular-frete/*.html" ]
+
+[functions.enviar-cupom-newsletter]
+enabled = true
+verify_jwt = false
+import_map = "./functions/enviar-cupom-newsletter/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/enviar-cupom-newsletter/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/enviar-cupom-newsletter/*.html" ]
+
+[functions.atualizar-pedido]
+enabled = true
+verify_jwt = false
+import_map = "./functions/atualizar-pedido/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/atualizar-pedido/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/atualizar-pedido/*.html" ]
+
+[functions.disparo-newsletter]
+enabled = true
+verify_jwt = false
+import_map = "./functions/disparo-newsletter/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/disparo-newsletter/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/disparo-newsletter/*.html" ]
+</file>
+
+<file path="package.json">
+{
+  "name": "@workspace/a-garimpeira",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.8",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}
+</file>
+
+<file path="postcss.config.js">
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+</file>
+
+<file path="README.md">
+# A Garimpeira — Brechó
+
+E-commerce performático para o brechó **A Garimpeira**, construído com Vanilla JavaScript ES6+, Vite e Tailwind CSS.
+
+## Stack
+
+| Tecnologia     | Uso                                      |
+|----------------|------------------------------------------|
+| **Vite 6**     | Bundler + dev server                     |
+| **Tailwind 3** | Estilização via PostCSS (sem CDN)        |
+| **PostCSS**    | Pipeline de CSS (tailwind + autoprefixer)|
+| **Vanilla JS** | ES6 Modules — sem framework              |
+
+## Arquitetura
+
+```
+artifacts/a-garimpeira/
+├── index.html              # Entrada HTML + Google Fonts
+├── vite.config.js          # Configuração do Vite
+├── tailwind.config.js      # Tokens de design + paleta personalizada
+├── postcss.config.js       # tailwindcss + autoprefixer
+├── package.json
+└── src/
+    ├── css/
+    │   └── main.css        # @tailwind + utilitários customizados
+    ├── js/
+    │   ├── main.js         # Ponto de entrada, renderização
+    │   ├── cart.js         # Estado do carrinho + localStorage
+    │   └── products.js     # Catálogo + trava de estoque único
+    └── components/         # Seções modulares (uso futuro)
+```
+
+## Identidade Visual
+
+### Paleta de Cores
+
+| Nome                  | Hex       | Uso                        |
+|-----------------------|-----------|----------------------------|
+| `rosa-queimado`       | `#C4737A` | Destaques, hover           |
+| `vermelho-cereja`     | `#A0192B` | CTAs, preços, títulos      |
+| `creme-amanteigado`   | `#F5EDD6` | Background principal       |
+| `marrom-cafe`         | `#4A2C1A` | Texto, header, footer      |
+| `azul-petroleo`       | `#2D5F6B` | Informações, links         |
+
+### Fontes
+
+| Família       | Uso                     |
+|---------------|-------------------------|
+| **Shrikhand** | Títulos e logotipo      |
+| **Montserrat**| Corpo de texto principal|
+| **Poppins**   | Texto suave, labels     |
+
+### Classes Utilitárias
+
+- `.bg-xadrez` / `.bg-xadrez-sutil` — Padrão xadrez no fundo
+- `.bg-kraft` — Textura de papel kraft
+- `.sombra-polaroid` / `.sombra-polaroid-lg` — Sombras estilo polaroid
+- `.cartao-polaroid` — Card com estética de foto polaroid
+- `.borda-retro` / `.borda-retro-rosa` — Borda com sombra sólida retro
+- `.badge-unico` — Badge "peça única"
+- `.btn-primario` / `.btn-secundario` — Botões com estética do brechó
+- `.input-campo` — Campo de formulário estilizado
+
+## Lógica de Estoque Único
+
+Cada peça do brechó é **única**. O módulo `cart.js` implementa uma trava:
+
+```js
+// Retorna { ok: false, motivo: "..." } se o item já está no carrinho
+const resultado = cartState.adicionar(produto);
+```
+
+O módulo `products.js` expõe `estaDisponivel(id)` que verifica em tempo real se a peça já foi reservada, refletindo isso na UI.
+
+## Scripts
+
+```bash
+pnpm dev      # Servidor de desenvolvimento
+pnpm build    # Build para produção
+pnpm serve    # Preview do build
+```
 </file>
 
 <file path="public/robots.txt">
@@ -2972,158 +4776,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 </file>
 
-<file path="src/js/modal.js">
-import { cartService } from "./cart.js";
-import { openCheckout } from "./checkout.js";
-
-const modalOverlay = document.createElement("div");
-modalOverlay.className = "fixed inset-0 bg-background/95 backdrop-blur-md z-[250] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center sm:p-4";
-document.body.appendChild(modalOverlay);
-
-export function openProductModal(product) {
-  const isInCart = cartService.isItemInCart(product.id);
-  const isSoldOut = product.soldOut;
-
-  let btnHtml = "";
-  if (isSoldOut) {
-    btnHtml = `<button disabled class="w-full bg-error text-on-error font-label-lg text-label-lg uppercase tracking-[0.2em] py-4 cursor-not-allowed border hairline-border">SOLD OUT</button>`;
-  } else if (isInCart) {
-    btnHtml = `<button disabled class="w-full bg-surface-variant text-on-surface-variant font-label-lg text-label-lg uppercase tracking-[0.2em] py-4 cursor-default border hairline-border">IN BAG</button>`;
-  } else {
-    btnHtml = `<button id="modal-add-btn" class="w-full bg-on-background text-on-primary font-label-lg text-label-lg uppercase tracking-[0.2em] py-4 hover:bg-primary-container hover:text-on-primary-container hover:border-transparent transition-all duration-300 border hairline-border flex justify-center items-center gap-2">Add to Bag <span class="material-symbols-outlined text-[18px]">east</span></button>`;
-  }
-
-  modalOverlay.innerHTML = `
-    <div class="bg-background w-full h-full md:h-[90vh] md:max-w-[1200px] border border-outline/20 overflow-y-auto flex flex-col relative transform scale-95 transition-transform duration-300 shadow-2xl" id="modal-content">
-        <button id="close-modal" class="absolute top-4 right-4 md:top-6 md:right-6 z-20 text-on-background hover:text-primary transition-colors material-symbols-outlined text-3xl bg-surface/50 rounded-full p-1 backdrop-blur-md">close</button>
-        
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter min-h-full">
-            <div class="md:col-span-7 relative bg-surface-container">
-                <img src="${product.image}" alt="${product.title}" class="w-full h-[50vh] md:h-full object-cover md:absolute md:inset-0" />
-                <div class="absolute top-4 left-4 flex gap-2">
-                    <span class="px-3 py-1 border border-on-background text-on-background font-label-sm text-label-sm uppercase bg-surface/50 backdrop-blur-sm">Archive</span>
-                    ${product.badge ? `<span class="px-3 py-1 border border-on-background text-on-background font-label-sm text-label-sm uppercase bg-surface/50 backdrop-blur-sm">${product.badge}</span>` : ''}
-                </div>
-            </div>
-            
-            <div class="md:col-span-5 flex flex-col justify-center py-stack-lg px-6 md:px-0 md:pr-12 md:pl-8">
-                <nav class="mb-stack-md hidden md:block">
-                    <ol class="flex items-center gap-2 font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">
-                        <li><span class="hover:text-primary transition-colors cursor-pointer" onclick="document.getElementById('close-modal').click()">Shop</span></li>
-                        <li><span class="mx-1">/</span></li>
-                        <li><span class="text-on-background">${product.category}</span></li>
-                    </ol>
-                </nav>
-
-                <div class="mb-stack-lg border-b border-outline/20 pb-stack-sm">
-                    <h1 class="font-headline-xl text-headline-xl mb-2 leading-tight">${product.title}</h1>
-                    <p class="font-headline-lg text-headline-lg text-primary ${isSoldOut ? 'line-through opacity-50' : ''}">R$ ${product.price}</p>
-                </div>
-                
-                <div class="mb-stack-lg">
-                    <p class="font-label-sm text-label-sm uppercase tracking-widest mb-3">Measurements / Specs</p>
-                    <div class="flex flex-wrap gap-3">
-                        <div class="px-4 py-2 border border-on-background text-center min-w-[80px]">
-                            <span class="font-label-sm text-label-sm block uppercase text-on-surface-variant">Condition</span>
-                            <span class="font-body-md text-body-md block mt-1">${product.subtitle.split('•')[0] || 'Vintage'}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-stack-lg w-full">
-                    ${btnHtml}
-                </div>
-                
-                <div class="prose max-w-none">
-                    <h3 class="font-headline-lg text-xl mb-4 italic">The Story</h3>
-                    <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                        ${product.description || "A rare find, curated for its timeless silhouette and impeccable quality. This piece represents the minimal aesthetics of the late 90s."}
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-  `;
-
-  modalOverlay.classList.remove("hidden");
-  setTimeout(() => {
-    modalOverlay.classList.add("opacity-100");
-    modalOverlay.querySelector("#modal-content").classList.replace("scale-95", "scale-100");
-  }, 10);
-
-  modalOverlay.querySelector("#close-modal").addEventListener("click", closeModal);
-
-  const addBtn = modalOverlay.querySelector("#modal-add-btn");
-  if (addBtn) {
-    addBtn.addEventListener("click", () => {
-      const result = cartService.addItem(product);
-      if (result.success) {
-        closeModal();
-        openCheckout();
-      }
-    });
-  }
-}
-
-export function closeModal() {
-  modalOverlay.classList.remove("opacity-100");
-  const content = modalOverlay.querySelector("#modal-content");
-  if (content) content.classList.replace("scale-100", "scale-95");
-  setTimeout(() => modalOverlay.classList.add("hidden"), 300);
-}
-
-modalOverlay.addEventListener("click", (e) => {
-  if (e.target === modalOverlay) closeModal();
-});
-</file>
-
-<file path="src/js/nova-senha.js">
-import "../css/main.css";
-import { supabase } from "./supabase.js";
-import { renderLayout } from "./layout.js";
-
-renderLayout();
-
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("form-nova-senha");
-  
-  // O Supabase mapeia a flag invisível na URL para nós
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'PASSWORD_RECOVERY') {
-      console.log("Modo de recuperação de senha ativado. O usuário está autenticado para a troca.");
-    }
-  });
-
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      
-      const password = document.getElementById("input-nova-senha").value;
-      const btn = form.querySelector("button");
-      const originalText = btn.textContent;
-      
-      btn.textContent = "SALVANDO...";
-      btn.disabled = true;
-
-      // Executa o bypass na segurança usando a sessão temporária amarrada no link do email
-      const { data, error } = await supabase.auth.updateUser({
-        password: password
-      });
-
-      btn.textContent = originalText;
-      btn.disabled = false;
-
-      if (error) {
-        alert(`Erro ao redefinir a senha: ${error.message}`);
-      } else {
-        alert("Sua senha foi redefinida com sucesso!");
-        window.location.href = "/minha-conta";
-      }
-    });
-  }
-});
-</file>
-
 <file path="src/js/supabase.js">
 import { createClient } from '@supabase/supabase-js';
 
@@ -3528,45 +5180,6 @@ export async function fetchPacks() {
 </html>
 </file>
 
-<file path="src/pages/nova-senha.html">
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Nova Senha | A GARIMPEIRAbr</title>
-    <!-- Essencial: Dita para o Google que ele não deve exibir essa tela na busca -->
-    <meta name="robots" content="noindex, nofollow" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/src/css/main.css" />
-    <link rel="icon" type="image/png" href="/favicon.webp" />
-</head>
-<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background">
-
-    <main class="pt-[140px] pb-24 max-w-lg mx-auto px-6 md:px-8 min-h-[70vh]">
-        <div class="mb-8 border-b border-outline/10 pb-6 text-center">
-            <h1 class="font-serif text-4xl md:text-5xl text-on-background italic mb-4">Nova Senha.</h1>
-            <p class="text-sm text-on-surface-variant uppercase tracking-widest">Crie uma nova senha de acesso.</p>
-        </div>
-
-        <form id="form-nova-senha" class="flex flex-col gap-6 bg-surface-container p-8 hairline-border shadow-lg">
-            <div class="flex flex-col gap-2">
-                <label class="text-xs font-bold uppercase tracking-widest text-on-background">Sua Nova Senha</label>
-                <input id="input-nova-senha" type="password" required minlength="6" placeholder="Mínimo 6 caracteres" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-on-background transition-colors">
-            </div>
-            <button type="submit" class="mt-4 w-full bg-on-background text-on-primary text-sm uppercase tracking-[0.2em] py-4 hover:bg-primary-container transition-all duration-300 font-bold">
-                Salvar e Entrar
-            </button>
-        </form>
-    </main>
-
-    <script type="module" src="/src/js/nova-senha.js"></script>
-</body>
-</html>
-</file>
-
 <file path="src/pages/privacidade.html">
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -3652,189 +5265,6 @@ export async function fetchPacks() {
             <p class="font-body-md text-base leading-relaxed text-on-surface-variant">Nosso papel é garantir a tecnologia, a segurança nas transações financeiras e a logística descomplicada, para que o seu único foco seja encontrar peças incríveis ou fazer uma grana extra.</p>
         </div>
     </main>
-    <script type="module" src="/src/js/main.js"></script>
-</body>
-</html>
-</file>
-
-<file path="src/pages/template-institucional.html">
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    
-    <!-- SEO Primário -->
-    <title>A GARIMPEIRAbr | Packs de Roupas Second-Hand para Brechós</title>
-    <meta name="description" content="Packs de peças second-hand, prontas pra arara. Curadoria, lavagem e higienização feitas por nós, você foca em vender. Enviamos pra todo o Brasil." />
-    <meta name="keywords" content="brechó online, curadoria vintage, second hand, roupas vintage, moda sustentável, a garimpeira, brechó itapetininga" />
-    <meta name="author" content="A Garimpeirabr" />
-    <link rel="canonical" href="https://www.agarimpeirabr.com.br/" />
-
-    <!-- Open Graph (WhatsApp, Instagram, Facebook) -->
-    <meta property="og:title" content="A Garimpeirabr | Packs Prontos pra Arara" />
-    <meta property="og:description" content="Packs de roupas second-hand, prontos pra vender. A gente garimpa, lava e higieniza — você foca no seu brechó. Enviamos para todo o Brasil." />
-    <meta property="og:image" content="https://www.agarimpeirabr.com.br/logo.webp" />
-    <meta property="og:url" content="https://www.agarimpeirabr.com.br/" />
-    <meta property="og:type" content="website" />
-
-    <!-- Schema.org / LocalBusiness (Otimização GEO para o Google) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Store",
-      "name": "A Garimpeirabr",
-      "image": "https://www.agarimpeirabr.com.br/logo.webp",
-      "@id": "https://www.agarimpeirabr.com.br/",
-      "url": "https://www.agarimpeirabr.com.br/",
-      "telephone": "",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "",
-        "addressLocality": "Itapetininga",
-        "addressRegion": "SP",
-        "postalCode": "18200-358",
-        "addressCountry": "BR"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": -23.5917,
-        "longitude": -48.0531
-      },
-      "priceRange": "$$",
-      "description": "Fornecemos packs de roupas second-hand, curadas e prontas pra vender, para donas de brechó e novas empreendedoras de moda."
-    }
-    </script>
-
-    <!-- Fontes e Estilos -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="/src/css/main.css" />
-    <link rel="icon" type="image/webp" href="/favicon.webp" />
-    <link rel="preconnect" href="https://hqssqzmgumckbcxcqqmu.supabase.co" crossorigin>
-</head>
-<body class="antialiased mesh-gradient-bg selection:bg-primary-container selection:text-on-primary-container text-base text-on-background">
-
-    <!-- TopNavBar -->
-    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-8 py-4 bg-surface/80 backdrop-blur-xl border-b border-outline/10 transition-all duration-300">
-        <div class="md:hidden flex items-center">
-            <button class="text-on-background">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-            </button>
-        </div>
-        
-        <a href="/" class="flex-shrink-0 cursor-pointer">
-            <img src="/logo.png" alt="A Garimpeira" class="h-6 md:h-8 object-contain" />
-        </a>
-        
-        <nav id="nav-links" class="hidden md:flex gap-8 items-center">
-            <a href="/src/pages/garimpos.html" class="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant hover:text-primary transition-all duration-300">Garimpos</a>
-            <a href="/src/pages/drops.html" class="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant hover:text-primary transition-all duration-300">Drops</a>
-            <a href="/src/pages/packs.html" class="text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant hover:text-primary transition-all duration-300">Packs</a>
-        </nav>
-        
-        <div class="flex items-center gap-4">
-            <div class="relative hidden lg:block mr-2">
-                <input class="bg-transparent border-b hairline-border px-0 py-1 text-xs uppercase tracking-wider focus:ring-0 focus:border-primary transition-all w-40 outline-none" placeholder="Search..." type="text" />
-            </div>
-            <button id="cart-toggle-btn" class="text-on-background hover:text-primary transition-colors relative flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                <span id="cart-count-badge" class="absolute -top-1 -right-2 bg-on-background text-background text-[10px] rounded-full w-4 h-4 flex items-center justify-center hidden font-bold">0</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- Área de Conteúdo Institucional -->
-    <main class="pt-[140px] pb-24 max-w-4xl mx-auto px-6 md:px-8 min-h-[70vh]">
-        
-        <div class="mb-12 border-b border-outline/10 pb-8">
-            <h1 class="font-serif text-4xl md:text-5xl text-on-background italic mb-4">Título da Página</h1>
-            <p class="text-sm text-on-surface-variant uppercase tracking-widest">Última atualização: 31 de Julho de 2026</p>
-        </div>
-
-        <div class="prose prose-invert max-w-none text-on-background/80 space-y-6">
-            <p>
-                Insira o texto da página institucional aqui. Esta área está otimizada para leitura, com uma largura máxima que evita que as linhas fiquem muito compridas.
-            </p>
-            
-            <h2 class="text-xl font-bold text-on-background mt-8 mb-4">1. Subtítulo de Exemplo</h2>
-            <p>
-                Pode usar tags HTML padrão como parágrafos, listas e cabeçalhos para estruturar documentos longos, como Políticas de Privacidade ou Termos de Uso.
-            </p>
-            
-            <ul class="list-disc pl-6 space-y-2 mt-4">
-                <li>Ponto importante número um.</li>
-                <li>Ponto importante número dois.</li>
-                <li>Ponto importante número três.</li>
-            </ul>
-        </div>
-    </main>
-
-    <!-- Minimal Checkout Drawer (Mantido para a navbar continuar funcionando) -->
-    <div id="checkout-drawer" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-background border-l hairline-border transform translate-x-full transition-transform duration-300 z-[200] flex flex-col hidden shadow-2xl">
-        <div class="p-6 border-b hairline-border flex justify-between items-center bg-background">
-            <h2 class="font-serif text-2xl font-bold">The Bag.</h2>
-            <button id="close-checkout-drawer" class="text-on-surface-variant hover:text-on-background">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-        </div>
-        
-        <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
-
-        <div id="payment-area" class="p-6 border-t hairline-border bg-surface-container-low flex flex-col gap-4">
-            <div class="flex justify-between items-center mb-2 text-xl font-bold">
-                <span>Total</span>
-                <span id="cart-total">R$ 0,00</span>
-            </div>
-            <div class="flex flex-col gap-3 text-xs uppercase tracking-widest text-on-background">
-                <input id="chk-nome" type="text" placeholder="Full Name" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full">
-                <input id="chk-cpf" type="text" placeholder="CPF" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full">
-                <input id="chk-cep" type="text" placeholder="Zip Code" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full">
-            </div>
-            <button id="btn-submit-order" class="w-full mt-4 bg-on-background text-on-primary text-sm uppercase tracking-[0.2em] py-4 hover:bg-primary-container transition-all duration-300 font-bold">
-                Finalize Order
-            </button>
-        </div>
-    </div>
-
-    <footer id="footer" class="w-full py-16 px-4 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 items-start bg-surface-container-lowest border-t border-outline/20">
-        <div class="col-span-1">
-            <img src="/logo.png" alt="A Garimpeira" class="h-10 object-contain mb-4" />
-            <p class="text-sm text-on-surface-variant">© 2026 A GARIMPEIRA.<br>Curadoria.</p>
-        </div>
-        
-        <div class="col-span-1 flex flex-col gap-4">
-            <h4 class="text-xs font-bold uppercase tracking-widest text-on-background">SAC & Legal</h4>
-            <div class="flex flex-col gap-3">
-                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/trocas.html">Políticas de Troca</a>
-                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/faq.html">Perguntas Frequentes</a>
-                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/privacidade.html">Política de Privacidade</a>
-                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/termos.html">Termos e Condições</a>
-            </div>
-        </div>
-
-        <div class="col-span-1 flex flex-col gap-4">
-            <h4 class="text-xs font-bold uppercase tracking-widest text-on-background">Links Úteis</h4>
-            <div class="flex flex-col gap-3">
-                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/sobre.html">Quem Somos</a>
-                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="https://instagram.com/agarimpeira" target="_blank" rel="noopener noreferrer">Nosso Instagram</a>
-                <a class="text-sm text-on-surface-variant hover:text-primary transition-all" href="/src/pages/contato.html">Fale Conosco</a>
-            </div>
-        </div>
-
-        <div id="newsletter-anchor" class="col-span-1 flex flex-col gap-4 bg-surface-container p-6 hairline-border">
-            <h4 class="text-xs font-bold uppercase tracking-widest text-on-background">Assine Nossa Lista VIP</h4>
-            <p class="text-xs text-on-surface-variant">Receba 10% OFF na primeira compra e avisos sobre drops.</p>
-            <form class="flex flex-col gap-3 mt-2">
-                <input type="text" placeholder="Seu Nome" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-sm text-on-background">
-                <input type="email" placeholder="Seu E-mail" class="bg-transparent border-b hairline-border px-0 py-2 outline-none focus:border-primary w-full text-sm text-on-background">
-                <button type="button" class="mt-4 w-full bg-on-background text-background px-4 py-3 text-xs font-bold uppercase tracking-widest hover:bg-primary-container transition-colors">Quero meu desconto</button>
-            </form>
-        </div>
-    </footer>
-
     <script type="module" src="/src/js/main.js"></script>
 </body>
 </html>
@@ -4535,21 +5965,6 @@ if (rootElement) {
 }
 </file>
 
-<file path="supabase/functions/asaas-checkout/.npmrc">
-# Configuration for private npm package dependencies
-# For more information on using private registries with Edge Functions, see:
-# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
-</file>
-
-<file path="supabase/functions/asaas-checkout/deno.json">
-{
-  "imports": {
-    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
-    "@supabase/server": "npm:@supabase/server@^1"
-  }
-}
-</file>
-
 <file path="supabase/functions/asaas-checkout/index.ts">
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
@@ -4707,148 +6122,6 @@ serve(async (req) => {
 });
 </file>
 
-<file path="supabase/functions/atualizar-pedido/.npmrc">
-# Configuration for private npm package dependencies
-# For more information on using private registries with Edge Functions, see:
-# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
-</file>
-
-<file path="supabase/functions/atualizar-pedido/deno.json">
-{
-  "imports": {
-    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
-    "@supabase/server": "npm:@supabase/server@^1"
-  }
-}
-</file>
-
-<file path="supabase/functions/atualizar-pedido/index.ts">
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  try {
-    const { orderId, logisticsStatus, trackingCode } = await req.json();
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const resendApiKey = Deno.env.get("RESEND_API_KEY") ?? "";
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Atualiza a coluna certa de logística no banco de dados
-    const { error: updateError } = await supabase
-      .from('orders')
-      .update({ logistics_status: logisticsStatus, tracking_code: trackingCode })
-      .eq('id', orderId);
-
-    if (updateError) throw updateError;
-
-    // Dispara e-mail apenas se o status logístico pedir
-    if ((logisticsStatus === 'separando' || logisticsStatus === 'enviado') && resendApiKey) {
-      const { data: orderInfo } = await supabase
-        .from("orders")
-        .select("*, customers(nome, email)")
-        .eq("id", orderId)
-        .single();
-
-      if (orderInfo?.customers?.email) {
-        let partesNome = orderInfo.customers.nome ? orderInfo.customers.nome.trim().split(/\s+/) : [];
-        let textoNome = "Garimpeira";
-
-        if (partesNome.length > 0) {
-            if (partesNome[0].length <= 2 && partesNome.length > 1) {
-                textoNome = partesNome[0] + " " + partesNome[1];
-            } else {
-                textoNome = partesNome[0];
-            }
-        }
-        
-        const nomeCliente = textoNome.split(" ").map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(" ");
-        
-        let emailSubject = "";
-        let emailHtml = "";
-
-        if (logisticsStatus === 'separando') {
-            emailSubject = "Seu pedido está sendo preparado! 📦";
-            emailHtml = `
-              <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; text-align: center; border: 1px solid #eaeaea;">
-                <h2 style="font-size: 20px; font-weight: bold; color: #1a1a1a;">Estamos separando o seu garimpo, ${nomeCliente}!</h2>
-                <p style="font-size: 16px; line-height: 1.6; color: #333333; margin-top: 20px;">
-                  O seu pagamento foi confirmado e a nossa equipe já está separando e embalando as suas peças com muito carinho.
-                </p>
-                <p style="font-size: 16px; line-height: 1.6; color: #666666;">
-                  Assim que o pacote for despachado, você receberá outro e-mail com o código de rastreio. Fica de olho na sua caixa de entrada!
-                </p>
-              </div>
-            `;
-        } else if (logisticsStatus === 'enviado' && trackingCode) {
-            emailSubject = "Seu pedido foi enviado! 🚚";
-            emailHtml = `
-              <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; text-align: center; border: 1px solid #eaeaea;">
-                <h2 style="font-size: 20px; font-weight: bold; color: #1a1a1a;">Seu garimpo está a caminho, ${nomeCliente}!</h2>
-                <p style="font-size: 16px; line-height: 1.6; color: #333333; margin-top: 20px;">
-                  O seu pedido já foi postado e está a caminho da sua casa.
-                </p>
-                <p style="font-size: 16px; color: #666666;">Acompanhe a entrega usando o código de rastreio abaixo:</p>
-                <div style="background-color: #f4f4f4; padding: 20px; font-size: 18px; font-weight: bold; letter-spacing: 2px; margin: 20px 0; color: #1a1a1a;">
-                  ${trackingCode}
-                </div>
-                <p style="font-size: 14px; color: #999999;">Você pode rastrear direto no site dos Correios ou da transportadora escolhida.</p>
-              </div>
-            `;
-        }
-
-        if (emailSubject && emailHtml) {
-            await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${resendApiKey}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                from: 'A Garimpeirabr <contato@agarimpeirabr.com.br>',
-                reply_to: 'contato.agarimpeirabr@gmail.com',
-                to: orderInfo.customers.email,
-                subject: emailSubject,
-                html: emailHtml
-              })
-            });
-        }
-      }
-    }
-
-    return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 });
-  } catch (error) {
-    return new Response(JSON.stringify({ success: false, error: error.message }), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 });
-  }
-});
-</file>
-
-<file path="supabase/functions/calcular-frete/.npmrc">
-# Configuration for private npm package dependencies
-# For more information on using private registries with Edge Functions, see:
-# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
-</file>
-
-<file path="supabase/functions/calcular-frete/deno.json">
-{
-  "imports": {
-    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
-    "@supabase/server": "npm:@supabase/server@^1"
-  }
-}
-</file>
-
 <file path="supabase/functions/calcular-frete/index.ts">
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
@@ -4977,1165 +6250,18 @@ serve(async (req) => {
 });
 </file>
 
-<file path="supabase/functions/disparo-newsletter/.npmrc">
-# Configuration for private npm package dependencies
-# For more information on using private registries with Edge Functions, see:
-# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
-</file>
-
-<file path="supabase/functions/disparo-newsletter/deno.json">
-{
-  "imports": {
-    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
-    "@supabase/server": "npm:@supabase/server@^1"
-  }
-}
-</file>
-
-<file path="supabase/functions/disparo-newsletter/index.ts">
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const resendApiKey = Deno.env.get("RESEND_API_KEY") ?? "";
-    
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) throw new Error("Token de autenticação não enviado.");
-    const token = authHeader.replace('Bearer ', '');
-
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey); 
-
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    if (authError || !user) throw new Error("Sessão inválida ou expirada.");
-
-    const { data: userData } = await supabaseAdmin.from('customers').select('is_admin').eq('id', user.id).single();
-    if (!userData?.is_admin) throw new Error("Você não tem privilégios de administrador.");
-
-    const { data: contatos, error: contatosError } = await supabaseAdmin
-        .from('vw_mala_direta')
-        .select('email, nome');
-        
-    if (contatosError || !contatos || contatos.length === 0) {
-        throw new Error("Nenhum contato encontrado na Mala Direta.");
-    }
-
-    const BATCH_SIZE = 100;
-    let emailsEnviados = 0;
-
-    for (let i = 0; i < contatos.length; i += BATCH_SIZE) {
-        const batch = contatos.slice(i, i + BATCH_SIZE).map(contato => {
-            
-            // Nova Lógica de Tratamento de Nomes Curtos
-            let partesNome = contato.nome ? contato.nome.trim().split(/\s+/) : [];
-            let textoNome = "Garimpeira";
-
-            if (partesNome.length > 0) {
-                // Se o primeiro nome tiver 1 ou 2 letras (ex: "A", "M.", "Zé") e tiver sobrenome, pega os dois.
-                if (partesNome[0].length <= 2 && partesNome.length > 1) {
-                    textoNome = partesNome[0] + " " + partesNome[1];
-                } else {
-                    textoNome = partesNome[0];
-                }
-            }
-
-            // Capitaliza a(s) palavra(s) do nome escolhido
-            const nomeFormatado = textoNome
-                .split(" ")
-                .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase())
-                .join(" ");
-
-            return {
-                from: 'A Garimpeirabr <contato@agarimpeirabr.com.br>',
-                to: contato.email,
-                subject: 'Acabou de chegar! Novas peças no acervo 👀',
-                html: `
-                    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #fcfcfc; color: #1a1a1a; border: 1px solid #eaeaea;">
-                        <div style="padding: 40px 32px; text-align: center; border-bottom: 1px solid #eaeaea; background-color: #ffffff;">
-                            <img src="https://www.agarimpeirabr.com.br/logo.png" alt="A Garimpeirabr" style="width: 200px; max-width: 100%; height: auto; margin: 0 auto; display: block;" />
-                        </div>
-                        <div style="padding: 48px 32px; background-color: #fcfcfc; text-align: center;">
-                            <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px; color: #1a1a1a;">
-                                Oi, ${nomeFormatado}!
-                            </h2>
-                            <p style="font-size: 16px; margin-top: 0; margin-bottom: 32px; color: #666666;">
-                                acabamos de liberar novas peças exclusivas no nosso acervo.
-                            </p>
-                            <p style="font-size: 15px; line-height: 1.6; margin-bottom: 40px; color: #333333;">
-                                corra lá, escolha as suas favoritas e monte seu pack personalizado de 5 a 30 peças. garimpo bom voa, então não perde tempo.
-                            </p>
-                            <a href="https://www.agarimpeirabr.com.br/garimpos" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; text-decoration: none; padding: 16px 32px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
-                                GARIMPAR AGORA
-                            </a>
-                        </div>
-                    </div>
-                `
-            };
-        });
-
-        const res = await fetch('https://api.resend.com/emails/batch', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${resendApiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(batch)
-        });
-
-        if (!res.ok) {
-            const errText = await res.text();
-            throw new Error("Erro da API Resend: " + errText);
-        } else {
-            emailsEnviados += batch.length;
-        }
-    }
-
-    return new Response(JSON.stringify({ success: true, count: emailsEnviados }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    });
-
-  } catch (error) {
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
-  }
-});
-</file>
-
-<file path="supabase/functions/enviar-cupom-newsletter/.npmrc">
-# Configuration for private npm package dependencies
-# For more information on using private registries with Edge Functions, see:
-# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
-</file>
-
-<file path="supabase/functions/enviar-cupom-newsletter/deno.json">
-{
-  "imports": {
-    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
-    "@supabase/server": "npm:@supabase/server@^1"
-  }
-}
-</file>
-
-<file path="supabase/functions/enviar-cupom-newsletter/index.ts">
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
-
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-
-function gerarCupom() {
-  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let resultado = '';
-  for (let i = 0; i < 5; i++) {
-    resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
-  }
-  return `AGBR-${resultado}`;
-}
-
-serve(async (req) => {
-  try {
-    const payload = await req.json()
-    const record = payload.record 
-
-    console.log("1. Novo registro recebido. E-mail:", record?.email);
-
-    if (!record || !record.email) {
-      throw new Error("Sem registro ou e-mail na requisição.");
-    }
-
-    const { nome, email } = record;
-    const cupomExclusivo = gerarCupom();
-
-    console.log("2. Atualizando banco com o cupom:", cupomExclusivo);
-
-    const { error: dbError } = await supabase
-      .from('newsletter')
-      .update({ cupom: cupomExclusivo })
-      .eq('email', email);
-
-    if (dbError) {
-      console.error("ERRO NO SUPABASE:", dbError);
-      throw dbError;
-    }
-
-    console.log("3. Disparando para o Resend...");
-
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'A Garimpeirabr <contato@agarimpeirabr.com.br>',
-        reply_to: 'contato.agarimpeirabr@gmail.com',
-        to: email,
-        subject: 'Seu garimpo tá prestes a começar 🧡',
-        html: `
-          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #fcfcfc; color: #1a1a1a; border: 1px solid #eaeaea;">
-            
-            <div style="padding: 40px 32px; text-align: center; border-bottom: 1px solid #eaeaea; background-color: #ffffff;">
-              <img src="https://www.agarimpeirabr.com.br/logo.png" alt="A Garimpeirabr" style="width: 200px; max-width: 100%; height: auto; margin: 0 auto; display: block;" />
-            </div>
-
-            <div style="padding: 48px 32px; background-color: #fcfcfc;">
-              <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px; color: #1a1a1a;">
-                bem-vinda, ${nome}!
-              </h2>
-              <p style="font-size: 16px; margin-top: 0; margin-bottom: 32px; color: #666666;">
-                seu garimpo tá prestes a começar 🧡
-              </p>
-
-              <p style="font-size: 15px; line-height: 1.6; margin-bottom: 24px; color: #333333;">
-                a gente garimpa, lava, higieniza e revitaliza roupas second-hand e monta em packs prontos pra vender. você foca no seu brechó e a gente cuida do trabalho pesado.
-              </p>
-              
-              <p style="font-size: 15px; line-height: 1.6; margin-bottom: 32px; color: #333333;">
-                como prometido, aqui está seu desconto de estreia:
-              </p>
-
-              <div style="background-color: #1a1a1a; padding: 40px 24px; text-align: center; margin: 32px 0;">
-                <p style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; margin: 0 0 16px 0; color: #a0a0a0;">
-                  CÓDIGO EXCLUSIVO
-                </p>
-                <div style="font-family: 'Georgia', serif; font-size: 32px; font-weight: normal; letter-spacing: 6px; color: #ffffff; margin-bottom: 16px;">
-                  ${cupomExclusivo}
-                </div>
-                <p style="font-size: 13px; margin: 0; color: #e0e0e0;">
-                  10% off no seu primeiro pack
-                </p>
-              </div>
-
-              <p style="font-size: 15px; line-height: 1.6; margin-bottom: 40px; color: #666666;">
-                é só colar esse código no checkout na hora de fechar o pedido. um pack bom não espera 👀
-              </p>
-
-              <div style="text-align: center; margin-top: 32px; margin-bottom: 20px;">
-                <a href="https://www.agarimpeirabr.com.br/src/pages/packs.html" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; text-decoration: none; padding: 16px 32px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
-                  VER PACKS DISPONÍVEIS
-                </a>
-              </div>
-            </div>
-
-            <div style="padding: 40px 32px; background-color: #ffffff; border-top: 1px solid #eaeaea; text-align: center;">
-              <img src="https://www.agarimpeirabr.com.br/icone.png" alt="Ícone A Garimpeira" style="width: 48px; height: auto; margin-bottom: 16px; display: inline-block;" />
-              <p style="font-size: 12px; margin: 0 0 8px 0; color: #666666;">
-                © 2026 A Garimpeira. Packs de roupas second-hand.
-              </p>
-              <p style="font-size: 12px; margin: 0; color: #999999;">
-                Itapetininga, SP
-              </p>
-            </div>
-            
-          </div>
-        `
-      })
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("4. RESEND RECUSOU O E-MAIL:", data);
-      throw new Error(JSON.stringify(data));
-    }
-
-    console.log("5. E-mail entregue com sucesso no Resend:", data);
-    return new Response(JSON.stringify({ success: true, cupom: cupomExclusivo }), { status: 200 });
-
-  } catch (error) {
-    console.error("ERRO FATAL NA FUNÇÃO:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
-})
-</file>
-
-<file path="supabase/functions/mp-checkout/.npmrc">
-# Configuration for private npm package dependencies
-# For more information on using private registries with Edge Functions, see:
-# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
-</file>
-
-<file path="supabase/functions/mp-checkout/deno.json">
-{
-  "imports": {
-    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
-    "@supabase/server": "npm:@supabase/server@^1"
-  }
-}
-</file>
-
-<file path="supabase/functions/mp-checkout/index.ts">
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const mpAccessToken = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const body = await req.json();
-    const { customer, address, items, freight, coupon, discount, paymentMethod, total } = body;
-
-    const orderId = crypto.randomUUID();
-
-    const preferenceData: any = {
-      items: items.map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        description: item.is_custom_pack ? "Pack Customizado de Peças" : "Garimpo",
-        picture_url: item.image,
-        category_id: "fashion",
-        quantity: item.quantity || 1,
-        currency_id: "BRL",
-        unit_price: item.price
-      })),
-      payer: {
-        email: customer.email,
-        name: customer.name.split(" ")[0],
-        surname: customer.name.split(" ").slice(1).join(" ") || "",
-        identification: {
-          type: "CPF",
-          number: customer.cpf.replace(/\D/g, '')
-        }
-      },
-      back_urls: {
-        success: "https://www.agarimpeirabr.com.br/packs?status=approved",
-        failure: "https://www.agarimpeirabr.com.br/packs?status=failure",
-        pending: "https://www.agarimpeirabr.com.br/packs?status=pending"
-      },
-      auto_return: "approved",
-      external_reference: orderId,
-    };
-
-    // Frete com a descrição correta de embalagem inclusa
-    if (freight && freight.price > 0) {
-      preferenceData.items.push({
-        id: "frete",
-        title: `Logística e Embalagem: ${freight.name}`,
-        description: "Custo de envio e caixa",
-        quantity: 1,
-        currency_id: "BRL",
-        unit_price: freight.price
-      });
-    }
-
-    if (discount && discount > 0) {
-      preferenceData.items.push({
-        id: "desconto",
-        title: `Desconto (Cupom: ${coupon || 'Aplicado'})`,
-        description: "Desconto promocional",
-        quantity: 1,
-        currency_id: "BRL",
-        unit_price: -Math.abs(discount)
-      });
-    }
-
-    const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${mpAccessToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(preferenceData)
-    });
-
-    if (!mpResponse.ok) {
-      const err = await mpResponse.text();
-      console.error("Erro no Mercado Pago:", err);
-      throw new Error("Falha ao gerar o link de pagamento da instituição financeira.");
-    }
-
-    const mpData = await mpResponse.json();
-
-    const { error: orderError } = await supabase.from('orders').insert({
-      id: orderId,
-      customer_id: customer.id,
-      total_amount: total,
-      status: 'pending'
-    });
-
-    if (orderError) throw orderError;
-
-    const orderItemsToInsert = items.map((item: any) => ({
-      order_id: orderId,
-      product_id: item.id,
-      price: item.price,
-      quantity: item.quantity || 1,
-      custom_items: item.custom_items || null 
-    }));
-
-    const { error: itemsError } = await supabase.from('order_items').insert(orderItemsToInsert);
-
-    if (itemsError) throw itemsError;
-
-    return new Response(JSON.stringify({
-      success: true,
-      initPoint: mpData.init_point
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    });
-
-  } catch (error: any) {
-    console.error("Erro Crítico no Checkout:", error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
-  }
-});
-</file>
-
-<file path="supabase/functions/mp-webhook/.npmrc">
-# Configuration for private npm package dependencies
-# For more information on using private registries with Edge Functions, see:
-# https://supabase.com/docs/guides/functions/import-maps#importing-from-private-registries
-</file>
-
-<file path="supabase/functions/mp-webhook/deno.json">
-{
-  "imports": {
-    "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
-    "@supabase/server": "npm:@supabase/server@^1"
-  }
-}
-</file>
-
-<file path="supabase/functions/mp-webhook/index.ts">
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-serve(async (req) => {
-
-  console.log("🔔 ALERTA: WEBHOOK BATEU NA PORTA!", req.url);
-
-  try {
-    const url = new URL(req.url);
-    const body = await req.json().catch(() => ({}));
-    console.log("📦 DADOS RECEBIDOS:", body);
-
-    const paymentId = url.searchParams.get("data.id") || body?.data?.id;
-    const eventType = url.searchParams.get("type") || body?.type || body?.action;
-
-    if (paymentId && eventType?.includes("payment")) {
-      const mpAccessToken = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
-      const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-      const resendApiKey = Deno.env.get("RESEND_API_KEY") ?? "";
-
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
-      const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-        headers: { "Authorization": `Bearer ${mpAccessToken}` }
-      });
-      const paymentData = await mpResponse.json();
-
-      const orderId = paymentData.external_reference; 
-      const status = paymentData.status; 
-
-      if (orderId) {
-        // Atualiza o status do pedido
-        await supabase.from("orders").update({ status: status }).eq("id", orderId);
-
-        // Busca os itens do pedido (Puxando a nova coluna custom_items)
-        const { data: orderItems } = await supabase
-          .from("order_items")
-          .select("product_id, custom_items")
-          .eq("order_id", orderId);
-
-        // 1. PAGAMENTO APROVADO - BAIXA NO ESTOQUE E DISPARA E-MAILS
-        if (status === "approved") {
-          
-          if (orderItems) {
-            for (const item of orderItems) {
-              // Verifica se é o "Monte seu Pack" (possui o array de peças)
-              if (item.custom_items && Array.isArray(item.custom_items) && item.custom_items.length > 0) {
-                // Dá baixa nas 5 peças simultaneamente
-                await supabase.from("produtos")
-                  .update({ status: "vendido", is_active: false })
-                  .in("id", item.custom_items);
-              } else {
-                // Tratamento normal para Peça Solta ou Pack Fechado
-                await supabase.from("produtos").update({ status: "vendido", is_active: false }).eq("id", item.product_id);
-                await supabase.from("packs").update({ is_active: false }).eq("id", item.product_id);
-
-                const { data: packData } = await supabase.from("packs").select("nome").eq("id", item.product_id).single();
-
-                if (packData && packData.nome) {
-                  await supabase.from("produtos")
-                    .update({ status: "vendido", is_active: false })
-                    .ilike("pack", packData.nome);
-                }
-              }
-            }
-          }
-
-          if (resendApiKey) {
-            const { data: orderInfo } = await supabase
-              .from("orders")
-              .select("*, customers(nome, email)")
-              .eq("id", orderId)
-              .single();
-
-            if (orderInfo && orderInfo.customers && orderInfo.customers.email) {
-              const nomeCliente = orderInfo.customers.nome.split(" ")[0];
-              const emailCliente = orderInfo.customers.email;
-              const valorTotal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(orderInfo.total_amount);
-
-              // Disparo via Resend para a CLIENTE
-              await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${resendApiKey}`,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  from: 'A Garimpeirabr <contato@agarimpeirabr.com.br>',
-                  reply_to: 'contato.agarimpeirabr@gmail.com',
-                  to: emailCliente,
-                  subject: `Oba! Pagamento Aprovado 🧡`,
-                  html: `
-                    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #fcfcfc; color: #1a1a1a; border: 1px solid #eaeaea;">
-                      <div style="padding: 40px 32px; text-align: center; border-bottom: 1px solid #eaeaea; background-color: #ffffff;">
-                        <img src="https://www.agarimpeirabr.com.br/logo.png" alt="A Garimpeirabr" style="width: 200px; max-width: 100%; height: auto; margin: 0 auto; display: block;" />
-                      </div>
-                      <div style="padding: 48px 32px; background-color: #fcfcfc;">
-                        <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px; color: #1a1a1a;">
-                          pagamento confirmado, ${nomeCliente.toLowerCase()}!
-                        </h2>
-                        <p style="font-size: 16px; margin-top: 0; margin-bottom: 32px; color: #666666;">
-                          seu garimpo agora é oficialmente seu 🧡
-                        </p>
-                        <p style="font-size: 15px; line-height: 1.6; margin-bottom: 24px; color: #333333;">
-                          recebemos o seu pagamento no valor de <strong>${valorTotal}</strong> e o seu pedido já está na nossa fila de separação.
-                        </p>
-                        <p style="font-size: 15px; line-height: 1.6; margin-bottom: 40px; color: #666666;">
-                          assim que ele for despachado, você receberá um novo aviso. relaxa e deixa o trabalho pesado com a gente.
-                        </p>
-                        <div style="text-align: center; margin-top: 32px; margin-bottom: 20px;">
-                          <a href="https://www.agarimpeirabr.com.br/src/pages/minha-conta.html" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; text-decoration: none; padding: 16px 32px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
-                            ACOMPANHAR PEDIDO
-                          </a>
-                        </div>
-                      </div>
-                      <div style="padding: 40px 32px; background-color: #ffffff; border-top: 1px solid #eaeaea; text-align: center;">
-                        <img src="https://www.agarimpeirabr.com.br/icone.png" alt="Ícone A Garimpeira" style="width: 48px; height: auto; margin-bottom: 16px; display: inline-block;" />
-                        <p style="font-size: 12px; margin: 0 0 8px 0; color: #666666;">
-                          © 2026 A Garimpeira. Packs de roupas second-hand.
-                        </p>
-                        <p style="font-size: 12px; margin: 0; color: #999999;">
-                          Itapetininga, SP
-                        </p>
-                      </div>
-                    </div>
-                  `
-                })
-              });
-
-              // Disparo de aviso interno para o LOJISTA
-              await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${resendApiKey}`,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  from: 'Sistema A Garimpeira <contato@agarimpeirabr.com.br>',
-                  to: [
-                    'contato.agarimpeirabr@gmail.com',
-                    'diegolopes.dev9@gmail.com',
-                    'aimee.pavanelli@gmail.com'
-                  ],
-                  subject: `💰 NOVA VENDA: Pedido #${orderId}`,
-                  html: `
-                    <div style="font-family: sans-serif; padding: 20px;">
-                      <h2>Aê! Venda confirmada.</h2>
-                      <p>Você acabou de receber um pagamento de <strong>${valorTotal}</strong>.</p>
-                      <p><strong>Cliente:</strong> ${nomeCliente} (${emailCliente})</p>
-                      <p>Acesse o painel executivo para ver os detalhes e separar o pack.</p>
-                    </div>
-                  `
-                })
-              });
-            }
-          }
-        }
-
-        // 2. PAGAMENTO RECUSADO/CANCELADO - DEVOLVE PARA A VITRINE
-        if (status === "rejected" || status === "cancelled" || status === "refunded") {
-          
-          if (orderItems) {
-            for (const item of orderItems) {
-              // Devolve as 5 peças do "Monte seu Pack" para o acervo
-              if (item.custom_items && Array.isArray(item.custom_items) && item.custom_items.length > 0) {
-                await supabase.from("produtos")
-                  .update({ status: "disponivel", is_active: true })
-                  .in("id", item.custom_items);
-              } else {
-                // Devolve as peças normais
-                await supabase.from("produtos").update({ status: "disponivel", is_active: true }).eq("id", item.product_id);
-                await supabase.from("packs").update({ is_active: true }).eq("id", item.product_id);
-
-                const { data: packData } = await supabase.from("packs").select("nome").eq("id", item.product_id).single();
-
-                if (packData && packData.nome) {
-                  await supabase.from("produtos")
-                    .update({ status: "disponivel", is_active: true })
-                    .ilike("pack", packData.nome);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    return new Response("Webhook processado", { status: 200 });
-  } catch (error) {
-    console.error("Erro no Webhook:", error);
-    return new Response("Erro interno", { status: 500 });
-  }
-});
-</file>
-
-<file path="supabase/.gitignore">
-# Supabase
-.branches
-.temp
-
-# dotenvx
-.env.keys
-.env.local
-.env.*.local
-</file>
-
-<file path="supabase/config.toml">
-# For detailed configuration reference documentation, visit:
-# https://supabase.com/docs/guides/local-development/cli/config
-# A string used to distinguish different Supabase projects on the same host. Defaults to the
-# working directory name when running `supabase init`.
-project_id = "workspace"
-
-[api]
-enabled = true
-# Port to use for the API URL.
-port = 54321
-# Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
-# endpoints. `public` and `graphql_public` schemas are included by default.
-schemas = ["public", "graphql_public"]
-# Extra schemas to add to the search_path of every request.
-extra_search_path = ["public", "extensions"]
-# The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
-# for accidental or malicious requests.
-max_rows = 1000
-# Controls whether new tables, views, sequences and functions created in the `public` schema by
-# `postgres` are reachable through the Data API roles (`anon`, `authenticated`, `service_role`)
-# without explicit GRANTs. Leave unset today to preserve local behaviour. The implicit default
-# flips to `false` on 2026-05-30 to match the new cloud default, and the field is removed in
-# 2026-10-30 once the always-revoked behaviour is permanent. Set to `false` to opt in early.
-# auto_expose_new_tables = false
-
-[api.tls]
-# Enable HTTPS endpoints locally using a self-signed certificate.
-enabled = false
-# Paths to self-signed certificate pair.
-# cert_path = "../certs/my-cert.pem"
-# key_path = "../certs/my-key.pem"
-
-[db]
-# Port to use for the local database URL.
-port = 54322
-# Port used by db diff command to initialize the shadow database.
-shadow_port = 54320
-# Maximum amount of time to wait for health check when starting the local database.
-health_timeout = "2m"
-# The database major version to use. This has to be the same as your remote database's. Run `SHOW
-# server_version;` on the remote database to check.
-major_version = 17
-
-[db.pooler]
-enabled = false
-# Port to use for the local connection pooler.
-port = 54329
-# Specifies when a server connection can be reused by other clients.
-# Configure one of the supported pooler modes: `transaction`, `session`.
-pool_mode = "transaction"
-# How many server connections to allow per user/database pair.
-default_pool_size = 20
-# Maximum number of client connections allowed.
-max_client_conn = 100
-
-# [db.vault]
-# secret_key = "env(SECRET_VALUE)"
-
-[db.migrations]
-# If disabled, migrations will be skipped during a db push or reset.
-enabled = true
-# Specifies an ordered list of schema files that describe your database.
-# Supports glob patterns relative to supabase directory: "./schemas/*.sql"
-schema_paths = []
-
-[db.seed]
-# If enabled, seeds the database after migrations during a db reset.
-enabled = true
-# Specifies an ordered list of seed files to load during db reset.
-# Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = ["./seed.sql"]
-
-[db.network_restrictions]
-# Enable management of network restrictions.
-enabled = false
-# List of IPv4 CIDR blocks allowed to connect to the database.
-# Defaults to allow all IPv4 connections. Set empty array to block all IPs.
-allowed_cidrs = ["0.0.0.0/0"]
-# List of IPv6 CIDR blocks allowed to connect to the database.
-# Defaults to allow all IPv6 connections. Set empty array to block all IPs.
-allowed_cidrs_v6 = ["::/0"]
-
-# Uncomment to reject non-secure connections to the database.
-# [db.ssl_enforcement]
-# enabled = true
-
-[realtime]
-enabled = true
-# Bind realtime via either IPv4 or IPv6. (default: IPv4)
-# ip_version = "IPv6"
-# The maximum length in bytes of HTTP request headers. (default: 4096)
-# max_header_length = 4096
-
-[studio]
-enabled = true
-# Port to use for Supabase Studio.
-port = 54323
-# External URL of the API server that frontend connects to.
-api_url = "http://127.0.0.1"
-# OpenAI API Key to use for Supabase AI in the Supabase Studio.
-openai_api_key = "env(OPENAI_API_KEY)"
-
-# Email testing server. Emails sent with the local dev setup are not actually sent - rather, they
-# are monitored, and you can view the emails that would have been sent from the web interface.
-[inbucket]
-enabled = true
-# Port to use for the email testing server web interface.
-port = 54324
-# Uncomment to expose additional ports for testing user applications that send emails.
-# smtp_port = 54325
-# pop3_port = 54326
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
-
-[storage]
-enabled = true
-# The maximum file size allowed (e.g. "5MB", "500KB").
-file_size_limit = "50MiB"
-
-# Uncomment to configure local storage buckets
-# [storage.buckets.images]
-# public = false
-# file_size_limit = "50MiB"
-# allowed_mime_types = ["image/png", "image/jpeg"]
-# objects_path = "./images"
-
-# Allow connections via S3 compatible clients
-[storage.s3_protocol]
-enabled = true
-
-# Image transformation API is available to Supabase Pro plan.
-# [storage.image_transformation]
-# enabled = true
-
-# Store analytical data in S3 for running ETL jobs over Iceberg Catalog
-# This feature is only available on the hosted platform.
-[storage.analytics]
-enabled = false
-max_namespaces = 5
-max_tables = 10
-max_catalogs = 2
-
-# Analytics Buckets is available to Supabase Pro plan.
-# [storage.analytics.buckets.my-warehouse]
-
-# Store vector embeddings in S3 for large and durable datasets
-[storage.vector]
-enabled = false
-max_buckets = 10
-max_indexes = 5
-
-# Vector Buckets is available to Supabase Pro plan.
-# [storage.vector.buckets.documents-openai]
-
-[auth]
-enabled = true
-# The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
-# in emails.
-site_url = "http://127.0.0.1:3000"
-# The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
-# external_url = ""
-# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
-# How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
-jwt_expiry = 3600
-# JWT issuer URL. If not set, defaults to auth.external_url.
-# jwt_issuer = ""
-# Path to JWT signing key. DO NOT commit your signing keys file to git.
-# signing_keys_path = "./signing_keys.json"
-# If disabled, the refresh token will never expire.
-enable_refresh_token_rotation = true
-# Allows refresh tokens to be reused after expiry, up to the specified interval in seconds.
-# Requires enable_refresh_token_rotation = true.
-refresh_token_reuse_interval = 10
-# Allow/disallow new user signups to your project.
-enable_signup = true
-# Allow/disallow anonymous sign-ins to your project.
-enable_anonymous_sign_ins = false
-# Allow/disallow testing manual linking of accounts
-enable_manual_linking = false
-# Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
-minimum_password_length = 6
-# Passwords that do not meet the following requirements will be rejected as weak. Supported values
-# are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
-password_requirements = ""
-
-# Configure passkey sign-ins.
-# [auth.passkey]
-# enabled = false
-
-# Configure WebAuthn relying party settings (required when passkey is enabled).
-# [auth.webauthn]
-# rp_display_name = "Supabase"
-# rp_id = "localhost"
-# rp_origins = ["http://127.0.0.1:3000"]
-
-[auth.rate_limit]
-# Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
-# Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
-sms_sent = 30
-# Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
-anonymous_users = 30
-# Number of sessions that can be refreshed in a 5 minute interval per IP address.
-token_refresh = 150
-# Number of sign up and sign-in requests that can be made in a 5 minute interval per IP address (excludes anonymous users).
-sign_in_sign_ups = 30
-# Number of OTP / Magic link verifications that can be made in a 5 minute interval per IP address.
-token_verifications = 30
-# Number of Web3 logins that can be made in a 5 minute interval per IP address.
-web3 = 30
-
-# Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
-# [auth.captcha]
-# enabled = true
-# provider = "hcaptcha"
-# secret = ""
-
-[auth.email]
-# Allow/disallow new user signups via email to your project.
-enable_signup = true
-# If enabled, a user will be required to confirm any email change on both the old, and new email
-# addresses. If disabled, only the new email is required to confirm.
-double_confirm_changes = true
-# If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
-# If enabled, users will need to reauthenticate or have logged in recently to change their password.
-secure_password_change = false
-# Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
-max_frequency = "1s"
-# Number of characters used in the email OTP.
-otp_length = 6
-# Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
-
-# Use a production-ready SMTP server
-# [auth.email.smtp]
-# enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
-
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
-
-# Uncomment to customize notification email template
-# [auth.email.notification.password_changed]
-# enabled = true
-# subject = "Your password has been changed"
-# content_path = "./templates/password_changed_notification.html"
-
-[auth.sms]
-# Allow/disallow new user signups via SMS to your project.
-enable_signup = false
-# If enabled, users need to confirm their phone number before signing in.
-enable_confirmations = false
-# Template for sending OTP to users
-template = "Your code is {{ .Code }}"
-# Controls the minimum amount of time that must pass before sending another sms otp.
-max_frequency = "5s"
-
-# Use pre-defined map of phone number to OTP for testing.
-# [auth.sms.test_otp]
-# 4152127777 = "123456"
-
-# Configure logged in session timeouts.
-# [auth.sessions]
-# Force log out after the specified duration.
-# timebox = "24h"
-# Force log out if the user has been inactive longer than the specified duration.
-# inactivity_timeout = "8h"
-
-# This hook runs before a new user is created and allows developers to reject the request based on the incoming user object.
-# [auth.hook.before_user_created]
-# enabled = true
-# uri = "pg-functions://postgres/auth/before-user-created-hook"
-
-# This hook runs before a token is issued and allows you to add additional claims based on the authentication method used.
-# [auth.hook.custom_access_token]
-# enabled = true
-# uri = "pg-functions://<database>/<schema>/<hook_name>"
-
-# Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
-[auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
-# DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
-auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
-
-# Multi-factor-authentication is available to Supabase Pro plan.
-[auth.mfa]
-# Control how many MFA factors can be enrolled at once per user.
-max_enrolled_factors = 10
-
-# Control MFA via App Authenticator (TOTP)
-[auth.mfa.totp]
-enroll_enabled = false
-verify_enabled = false
-
-# Configure MFA via Phone Messaging
-[auth.mfa.phone]
-enroll_enabled = false
-verify_enabled = false
-otp_length = 6
-template = "Your code is {{ .Code }}"
-max_frequency = "5s"
-
-# Configure MFA via WebAuthn
-# [auth.mfa.web_authn]
-# enroll_enabled = true
-# verify_enabled = true
-
-# Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
-# `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
-# `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
-[auth.external.apple]
-enabled = false
-client_id = ""
-# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
-secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
-# Overrides the default auth callback URL derived from auth.external_url.
-redirect_uri = ""
-# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
-# or any other third-party OIDC providers.
-url = ""
-# If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
-skip_nonce_check = false
-# If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
-email_optional = false
-
-# Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.
-# You can configure "web3" rate limit in the [auth.rate_limit] section and set up [auth.captcha] if self-hosting.
-[auth.web3.solana]
-enabled = false
-
-# Use Firebase Auth as a third-party provider alongside Supabase Auth.
-[auth.third_party.firebase]
-enabled = false
-# project_id = "my-firebase-project"
-
-# Use Auth0 as a third-party provider alongside Supabase Auth.
-[auth.third_party.auth0]
-enabled = false
-# tenant = "my-auth0-tenant"
-# tenant_region = "us"
-
-# Use AWS Cognito (Amplify) as a third-party provider alongside Supabase Auth.
-[auth.third_party.aws_cognito]
-enabled = false
-# user_pool_id = "my-user-pool-id"
-# user_pool_region = "us-east-1"
-
-# Use Clerk as a third-party provider alongside Supabase Auth.
-[auth.third_party.clerk]
-enabled = false
-# Obtain from https://clerk.com/setup/supabase
-# domain = "example.clerk.accounts.dev"
-
-# OAuth server configuration
-[auth.oauth_server]
-# Enable OAuth server functionality
-enabled = false
-# Path for OAuth consent flow UI
-authorization_url_path = "/oauth/consent"
-# Allow dynamic client registration
-allow_dynamic_registration = false
-
-[edge_runtime]
-enabled = true
-# Supported request policies: `oneshot`, `per_worker`.
-# `per_worker` (default) — enables hot reload during local development.
-# `oneshot` — fallback mode if hot reload causes issues (e.g. in large repos or with symlinks).
-policy = "per_worker"
-# Port to attach the Chrome inspector for debugging edge functions.
-inspector_port = 8083
-# The Deno major version to use.
-deno_version = 2
-
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
-
-[analytics]
-enabled = true
-port = 54327
-# Configure one of the supported backends: `postgres`, `bigquery`.
-backend = "postgres"
-
-# Experimental features may be deprecated any time
-[experimental]
-# Configures Postgres storage engine to use OrioleDB (S3)
-orioledb_version = ""
-# Configures S3 bucket URL, eg. <bucket_name>.s3-<region>.amazonaws.com
-s3_host = "env(S3_HOST)"
-# Configures S3 bucket region, eg. us-east-1
-s3_region = "env(S3_REGION)"
-# Configures AWS_ACCESS_KEY_ID for S3 bucket
-s3_access_key = "env(S3_ACCESS_KEY)"
-# Configures AWS_SECRET_ACCESS_KEY for S3 bucket
-s3_secret_key = "env(S3_SECRET_KEY)"
-
-# [experimental.pgdelta]
-# When enabled, pg-delta becomes the active engine for supported schema flows.
-# enabled = false
-# Directory under `supabase/` where declarative files are written.
-# declarative_schema_path = "./database"
-# JSON string passed through to pg-delta SQL formatting.
-# format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
-
-[functions.asaas-checkout]
-enabled = true
-verify_jwt = false
-import_map = "./functions/asaas-checkout/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/asaas-checkout/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/asaas-checkout/*.html" ]
-
-[functions.mp-checkout]
-enabled = true
-verify_jwt = false
-import_map = "./functions/mp-checkout/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/mp-checkout/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/mp-checkout/*.html" ]
-
-[functions.mp-webhook]
-enabled = true
-verify_jwt = false
-import_map = "./functions/mp-webhook/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/mp-webhook/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/mp-webhook/*.html" ]
-
-[functions.calcular-frete]
-enabled = true
-verify_jwt = false
-import_map = "./functions/calcular-frete/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/calcular-frete/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/calcular-frete/*.html" ]
-
-[functions.enviar-cupom-newsletter]
-enabled = true
-verify_jwt = false
-import_map = "./functions/enviar-cupom-newsletter/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/enviar-cupom-newsletter/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/enviar-cupom-newsletter/*.html" ]
-
-[functions.atualizar-pedido]
-enabled = true
-verify_jwt = false
-import_map = "./functions/atualizar-pedido/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/atualizar-pedido/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/atualizar-pedido/*.html" ]
-
-[functions.disparo-newsletter]
-enabled = true
-verify_jwt = false
-import_map = "./functions/disparo-newsletter/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/disparo-newsletter/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/disparo-newsletter/*.html" ]
-</file>
-
 <file path=".gitignore">
+# Dependências
 node_modules/
 dist/
 .cache/
+
+# Variáveis de Ambiente (CRÍTICO)
+.env
+.env.*
 *.local
+
+# SO
 .DS_Store
 Thumbs.db
 </file>
@@ -6298,125 +6424,6 @@ Thumbs.db
 </html>
 </file>
 
-<file path="package.json">
-{
-  "name": "@workspace/a-garimpeira",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.7.0",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.17",
-    "vite": "^6.3.5"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.110.8",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
-  }
-}
-</file>
-
-<file path="postcss.config.js">
-export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-};
-</file>
-
-<file path="README.md">
-# A Garimpeira — Brechó
-
-E-commerce performático para o brechó **A Garimpeira**, construído com Vanilla JavaScript ES6+, Vite e Tailwind CSS.
-
-## Stack
-
-| Tecnologia     | Uso                                      |
-|----------------|------------------------------------------|
-| **Vite 6**     | Bundler + dev server                     |
-| **Tailwind 3** | Estilização via PostCSS (sem CDN)        |
-| **PostCSS**    | Pipeline de CSS (tailwind + autoprefixer)|
-| **Vanilla JS** | ES6 Modules — sem framework              |
-
-## Arquitetura
-
-```
-artifacts/a-garimpeira/
-├── index.html              # Entrada HTML + Google Fonts
-├── vite.config.js          # Configuração do Vite
-├── tailwind.config.js      # Tokens de design + paleta personalizada
-├── postcss.config.js       # tailwindcss + autoprefixer
-├── package.json
-└── src/
-    ├── css/
-    │   └── main.css        # @tailwind + utilitários customizados
-    ├── js/
-    │   ├── main.js         # Ponto de entrada, renderização
-    │   ├── cart.js         # Estado do carrinho + localStorage
-    │   └── products.js     # Catálogo + trava de estoque único
-    └── components/         # Seções modulares (uso futuro)
-```
-
-## Identidade Visual
-
-### Paleta de Cores
-
-| Nome                  | Hex       | Uso                        |
-|-----------------------|-----------|----------------------------|
-| `rosa-queimado`       | `#C4737A` | Destaques, hover           |
-| `vermelho-cereja`     | `#A0192B` | CTAs, preços, títulos      |
-| `creme-amanteigado`   | `#F5EDD6` | Background principal       |
-| `marrom-cafe`         | `#4A2C1A` | Texto, header, footer      |
-| `azul-petroleo`       | `#2D5F6B` | Informações, links         |
-
-### Fontes
-
-| Família       | Uso                     |
-|---------------|-------------------------|
-| **Shrikhand** | Títulos e logotipo      |
-| **Montserrat**| Corpo de texto principal|
-| **Poppins**   | Texto suave, labels     |
-
-### Classes Utilitárias
-
-- `.bg-xadrez` / `.bg-xadrez-sutil` — Padrão xadrez no fundo
-- `.bg-kraft` — Textura de papel kraft
-- `.sombra-polaroid` / `.sombra-polaroid-lg` — Sombras estilo polaroid
-- `.cartao-polaroid` — Card com estética de foto polaroid
-- `.borda-retro` / `.borda-retro-rosa` — Borda com sombra sólida retro
-- `.badge-unico` — Badge "peça única"
-- `.btn-primario` / `.btn-secundario` — Botões com estética do brechó
-- `.input-campo` — Campo de formulário estilizado
-
-## Lógica de Estoque Único
-
-Cada peça do brechó é **única**. O módulo `cart.js` implementa uma trava:
-
-```js
-// Retorna { ok: false, motivo: "..." } se o item já está no carrinho
-const resultado = cartState.adicionar(produto);
-```
-
-O módulo `products.js` expõe `estaDisponivel(id)` que verifica em tempo real se a peça já foi reservada, refletindo isso na UI.
-
-## Scripts
-
-```bash
-pnpm dev      # Servidor de desenvolvimento
-pnpm build    # Build para produção
-pnpm serve    # Preview do build
-```
-</file>
-
 <file path="tailwind.config.js">
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -6479,46 +6486,6 @@ export default {
   },
   plugins: [],
 };
-</file>
-
-<file path="vercel.json">
-{
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
-    { "source": "/comprar", "destination": "/src/pages/comprar.html" },
-    { "source": "/lojinhas", "destination": "/src/pages/lojinhas.html" },
-    { "source": "/sobre", "destination": "/src/pages/sobre.html" },
-    { "source": "/contato", "destination": "/src/pages/contato.html" },
-    { "source": "/faq", "destination": "/src/pages/faq.html" },
-    { "source": "/trocas", "destination": "/src/pages/trocas.html" },
-    { "source": "/privacidade", "destination": "/src/pages/privacidade.html" },
-    { "source": "/termos", "destination": "/src/pages/termos.html" },
-    { "source": "/minha-conta", "destination": "/src/pages/minha-conta.html" },
-    { "source": "/nova-senha", "destination": "/src/pages/nova-senha.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/vender", "destination": "/src/pages/vender.html" },
-    { "source": "/produto/:id/:slug", "destination": "/src/pages/produto.html" },
-    { "source": "/produto", "destination": "/src/pages/produto.html" }
-  ],
-  "headers": [
-    {
-      "source": "/llms.txt",
-      "headers": [
-        { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self' https://*.supabase.co https://*.supabase.in; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.asaas.com;" }
-      ]
-    }
-  ]
-}
 </file>
 
 <file path="vite.config.js">
@@ -6600,6 +6567,46 @@ export default defineConfig({
     }
   }
 });
+</file>
+
+<file path="vercel.json">
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/comprar", "destination": "/src/pages/comprar" },
+    { "source": "/lojinhas", "destination": "/src/pages/lojinhas" },
+    { "source": "/sobre", "destination": "/src/pages/sobre" },
+    { "source": "/contato", "destination": "/src/pages/contato" },
+    { "source": "/faq", "destination": "/src/pages/faq" },
+    { "source": "/trocas", "destination": "/src/pages/trocas" },
+    { "source": "/privacidade", "destination": "/src/pages/privacidade" },
+    { "source": "/termos", "destination": "/src/pages/termos" },
+    { "source": "/minha-conta", "destination": "/src/pages/minha-conta" },
+    { "source": "/nova-senha", "destination": "/src/pages/nova-senha" },
+    { "source": "/admin", "destination": "/admin" },
+    { "source": "/vender", "destination": "/src/pages/vender" },
+    { "source": "/produto/:id/:slug", "destination": "/src/pages/produto" },
+    { "source": "/produto", "destination": "/src/pages/produto" }
+  ],
+  "headers": [
+    {
+      "source": "/llms.txt",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self' https://*.supabase.co https://*.supabase.in; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.asaas.com;" }
+      ]
+    }
+  ]
+}
 </file>
 
 </files>
